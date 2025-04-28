@@ -8,7 +8,7 @@ My current setup involves a single NVMe drive to manage both boot drive and stor
 As I'm running Proxmox for personal I must disable the enterprise repositories for it to update properly down the line. 
 
 #### Disable Enterprise Repositories
-![](https://github.com/mateuspim/homelab/blob/main/assets/proxmox_enterprise_repo.png?raw=true)
+![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_enterprise_repo.png?raw=true)
 1. Navigate to _Node > Repositories_ Disable the enterprise repositories.
 2. Now click Add and enable the no subscription repository. Finally, go _Updates > Refresh_.
 3. Upgrade your system by clicking _Upgrade_ above the repository setting page.
@@ -23,7 +23,7 @@ Add `intel_iommu=on` or `amd_iommu=on` to the `GRUB_CMDLINE_LINUX_DEFAULT` line 
 # Should look like this
 GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"
 ```
-![](https://github.com/mateuspim/homelab/blob/main/assets/proxmox_enable_iommu.png?raw=true)
+![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_enable_iommu.png?raw=true)
 Next run the following commands and reboot your system.
 ```
 update-grub
@@ -49,7 +49,7 @@ First, in the _Node > Disk_ section we must wipe all disks that will be part of 
 After that, we must go to _Disks > ZFS > Create: ZFS_. This will pop up the screen to create a ZFS pool.
 
 From this screen, select all drives that will be part of the pool, name it and select your RAID level.
-![](https://github.com/mateuspim/homelab/blob/main/assets/proxmox_create_zfs.png?raw=true)
+![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_create_zfs.png?raw=true)
 
 #### Some ZFS Commands
 
