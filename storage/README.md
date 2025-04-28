@@ -1,11 +1,11 @@
 # Storage
-This section describes my storage solution runinng on my homelab. Recently, i had all my ZFS pools managed via TrueNas, however i intend to use Proxmox from now on to manage all my storage needs.
+This section describes my storage solution runinng on my homelab. Recently, I had all my ZFS pools managed via TrueNas, however I intend to use Proxmox from now on to manage all my storage needs.
 
 ## Proxmox
 My current setup involves a single NVMe drive to manage both boot drive and storage for containers and VMs and HDD in ZFS configuration to serve as my NAS.
 
 ## Initial Setup
-As Im running proxmox for personal i must disable the enterprise repositories for it to update properly down the line. 
+As I'm running Proxmox for personal I must disable the enterprise repositories for it to update properly down the line. 
 
 #### Disable Enterprise Repositories
 ![](https://github.com/mateuspim/homelab/blob/main/assets/proxmox_enterprise_repo.png?raw=true)
@@ -18,7 +18,7 @@ Enable IOMMU on in grub configuration within _Node > Shell_.
 ```
 nano /etc/default/grub
 ```
-Add `intel_iommu=on` or `amd_iommu=on` depending on your system
+Add `intel_iommu=on` or `amd_iommu=on` to the `GRUB_CMDLINE_LINUX_DEFAULT` line depending on your system
 ```
 # Should look like this
 GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"
@@ -34,7 +34,7 @@ Now check to make sure everything is enabled.
 dmesg | grep -e DMAR -e IOMMU
 dmesg | grep 'remapping'
 ```
-If the following message appears everything was done correctly. It may vary depending on your system
+If a message similar to the one below appears, everything was done correctly. Note that the exact message may vary depending on your system configuration.
 ```
 AMD-Vi: Interrupt remapping enabled
 ```
@@ -42,18 +42,18 @@ Now PCI-Passthrough is enabled and ready for future VMs
 
 ## Create ZFS Pools
 
-Here we are going to create the main ZFS Pool which serves as main NAS for all my home lab applications.
+We will create the main ZFS Pool to serve as the NAS for home lab applications.
 
 First, in the _Node > Disk_ section we must wipe all disks that will be part of the ZFS Pool.
 
 After that, we must go to _Disks > ZFS > Create: ZFS_. This will pop up the screen to create a ZFS pool.
 
 From this screen, select all drives that will be part of the pool, name it and select your RAID level.
-![](https://github.com/mateuspim/homelab)
+![](https://github.com/mateuspim/homelab/blob/main/assets/proxmox_create_zfs.png?raw=true)
 
 #### Some ZFS Commands
 
-The above command lists all ZFS availables on your system
+The command below lists all ZFS availables on your system
 ```
 zpool list
 ```
@@ -62,4 +62,4 @@ However, this command shows your pools with correct available storage left
 zfs list
 ```
 
-Now its all setup for the VMs to come.
+Now it's all setup for the VMs to come
