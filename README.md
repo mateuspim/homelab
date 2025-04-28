@@ -2,6 +2,7 @@
 A collection of all my configs of my home lab. 
 
 ## Navigation
+* [Storage](https://github.com/mateuspim/homelab/tree/main/storage) - Current Storage and Backup Solution.
 
 ## Hardware
 
