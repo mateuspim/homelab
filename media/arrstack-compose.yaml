@@ -243,7 +243,7 @@ services:
 
 # Youtube downloading and subscription service.
   ytdl-sub:
-    image: ghcr.io/jmbannon/ytdl-sub:latest
+    image: ghcr.io/jmbannon/ytdl-sub-gui:latest
     container_name: ytdl-sub
     environment:
       - PUID=1000
@@ -253,6 +253,12 @@ services:
     volumes:
       - /mnt/docker/ytdl-sub/config:/config
       - /mnt/data/youtube:/youtube
+      - /mnt/data/series:/tv_shows  # optional
+      - /mnt/data/movies:/movies  # optional
+      - /mnt/data/music_videos:/music_videos  # optional
+      - /mnt/data/music:/music  # optional
+    ports:
+      - 8443:8443
     networks:
       servarrnetwork:
         ipv4_address: 172.22.0.8
