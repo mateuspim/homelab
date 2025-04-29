@@ -7,7 +7,7 @@ This section describes my self hosted media server. Running on a VM in Proxmox w
 
 First we must download the Debian ISO, to do so go to _Node > local (node) > ISO Images_ in this step you can both upload your own ISO image or Download from URL as shown below:
 
-> **Note:** The image above is an example and may not apply universally. Replace it with your own ISO download url if needed.
+> **Note:** The image below is an example and may not apply universally. Replace it with your own ISO download url if needed.
 ![](https://github.com/mateuspim/homelab/blob/main/media/assets/proxmox_download_iso.png?raw=true)
 
 After the ISO downloads/uploads, we must create a VM and install the Debian distro, to do so simply press the _Create VM_ on top of the page and follow the instructions to create a VM
