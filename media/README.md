@@ -32,6 +32,7 @@ data
 ├── movies
 ├── music
 ├── series
+├── anime
 └── youtube
 ```
 ### SMB Share
