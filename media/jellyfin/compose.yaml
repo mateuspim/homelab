@@ -17,7 +17,17 @@ services:
       - 7359:7359/udp #Service Discovery
       - 1900:1900/udp #Client Discovery
     restart: unless-stopped
-
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+        - LOG_LEVEL=debug
+        - TZ=America/Sao_Paulo
+    ports:
+        - 5055:5055
+    volumes:
+        - /docker/jellyseerr/config:/app/config
+    restart: unless-stopped
   jellystat-db:
     image: postgres:15.2
     container_name: jellystat-db
