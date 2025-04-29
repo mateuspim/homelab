@@ -1,0 +1,267 @@
+networks:
+  servarrnetwork:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.2
+    ports:
+      - 8080:8080 # qbittorrent web interface
+      - 6881:6881 # qbittorrent torrent port
+      - 6789:6789 # nzbget
+      - 9696:9696 # prowlarr
+    volumes:
+      - /mnt/docker/gluetun:/gluetun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=openvpn
+    # - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24 # add if prowlarr wont connect to other arr apps, change to your specific subnet
+      - OPENVPN_USER=key
+      - OPENVPN_PASSWORD=password
+      - SERVER_COUNTRIES=Brazil
+        # Timezone for accurate log times
+      - TZ=America/Sao_Paulo
+      - HEALTH_VPN_DURATION_INITIAL=120s
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 60s
+      timeout: 20s
+      retries: 5
+    restart: unless-stopped
+
+  deunhealth:
+    image: qmcgaw/deunhealth
+    container_name: deunhealth
+    network_mode: "none"
+    environment:
+      - LOG_LEVEL=info
+      - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
+      - TZ=America/Sao_Paulo
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Healthcheck was added to work with deunhealth to restart container
+# on unhealthy status. labels allows deunhealth to monitor.
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    labels:
+      - deunhealth.restart.on.unhealthy=true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - /mnt/docker/qbittorrent:/config
+      - /mnt/data:/data
+    depends_on:
+      - gluetun
+    network_mode: service:gluetun
+    healthcheck:
+        test: ping -c 1 www.google.com || exit 1
+        interval: 60s
+        retries: 3
+        start_period: 20s
+        timeout: 10s
+
+  nzbget:
+    image: lscr.io/linuxserver/nzbget:latest
+    container_name: nzbget
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - NZBGET_USER=user
+      - NZBGET_PASS=password
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/nzbget:/config
+      - /mnt/data:/data
+    depends_on:
+      - gluetun
+    restart: unless-stopped
+    network_mode: service:gluetun
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/prowlarr:/config
+    restart: unless-stopped
+    depends_on:
+      - gluetun
+      - flaresolverr
+    network_mode: service:gluetun
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/sonarr:/config
+      - /mnt/data:/data
+    ports:
+      - 8989:8989
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.3
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/radarr:/config
+      - /mnt/data:/data
+    ports:
+      - 7878:7878
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.4
+    depends_on:
+      - prowlarr
+      - qbittorrent
+
+  readarr:
+    container_name: readarr
+    image: lscr.io/linuxserver/readarr:develop
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/lidarr:/config
+      - /mnt/data:/data
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=America/Sao_Paulo
+    ports:
+      - 8787:8787
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.10
+    depends_on:
+      - prowlarr
+      - qbittorrent
+
+  lidarr:
+    container_name: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/lidarr:/config
+      - /mnt/data:/data
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=America/Sao_Paulo
+    ports:
+      - 8686:8686
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.5
+    depends_on:
+      - prowlarr
+      - qbittorrent
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /mnt/docker/bazarr:/config
+      - /mnt/data:/data
+    ports:
+      - 6767:6767
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.6
+    depends_on:
+      - sonarr
+      - radarr
+
+# Used to browse the file system via a web browser.
+# Default login is admin/admin. Change password in Settings > User Managment.
+# Permissions set to my default user 1000:1000 as that's the user that owns my data directory.
+
+  filebrowser:
+    image: filebrowser/filebrowser:s6
+    container_name: filebrowser
+    volumes:
+      - /mnt/data:/srv # Directory you want exposed to filebrowser.
+      - /mnt/docker/filebrowser/data:/data
+      - /mnt/docker/filebrowser/config:/config
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 80:80
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.7
+    restart: unless-stopped
+
+# Youtube downloading and subscription service.
+  ytdl-sub:
+    image: ghcr.io/jmbannon/ytdl-sub:latest
+    container_name: ytdl-sub
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - DOCKER_MODS=linuxserver/mods:universal-cron
+    volumes:
+      - /mnt/docker/ytdl-sub/config:/config
+      - /mnt/data/youtube:/youtube
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.8
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    hostname: flaresolverr
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.9
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=America/Sao_Paulo
+    restart: unless-stopped
