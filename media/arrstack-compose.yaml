@@ -25,8 +25,8 @@ services:
     environment:
       - VPN_SERVICE_PROVIDER=nordvpn
       - VPN_TYPE=openvpn
-    # - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24 # add if prowlarr wont connect to other arr apps, change to your specific subnet
-      - OPENVPN_USER=key
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24 # add if prowlarr wont connect to other arr apps, change to your specific subnet
+      - OPENVPN_USER=user
       - OPENVPN_PASSWORD=password
       - SERVER_COUNTRIES=Brazil
         # Timezone for accurate log times
@@ -67,7 +67,7 @@ services:
       - TORRENTING_PORT=6881
     volumes:
       - /mnt/docker/qbittorrent:/config
-      - /mnt/data:/data
+      - /mnt/data/downloads/qbittorrent:/downloads
     depends_on:
       - gluetun
     network_mode: service:gluetun
@@ -105,7 +105,7 @@ services:
       - TZ=America/Sao_Paulo
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/prowlarr:/config
+      - /docker/prowlarr:/config
     restart: unless-stopped
     depends_on:
       - gluetun
@@ -122,8 +122,10 @@ services:
       - TZ=America/Sao_Paulo
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/sonarr:/config
-      - /mnt/data:/data
+      - /docker/sonarr:/config
+      - /mnt/data/series:/tv
+      - /mnt/data/anime:/anime
+      - /mnt/data/downloads/qbittorrent:/downloads
     ports:
       - 8989:8989
     networks:
@@ -140,8 +142,9 @@ services:
       - TZ=America/Sao_Paulo
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/radarr:/config
-      - /mnt/data:/data
+      - /docker/radarr:/config
+      - /mnt/data/movies:/movies
+      - /mnt/data/downloads/qbittorrent:/downloads
     ports:
       - 7878:7878
     networks:
@@ -157,14 +160,15 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/lidarr:/config
-      - /mnt/data:/data
+      - /docker/lidarr:/config
+      - /mnt/data/books:/books
+      - /mnt/data/downloads/qbittorrent:/downloads
     environment:
      - PUID=1000
      - PGID=1000
      - TZ=America/Sao_Paulo
     ports:
-      - 8787:8787
+      - 8787:8686
     networks:
       servarrnetwork:
         ipv4_address: 172.22.0.10
@@ -178,8 +182,9 @@ services:
     restart: unless-stopped
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/lidarr:/config
-      - /mnt/data:/data
+      - /docker/lidarr:/config
+      - /mnt/data/music:/music
+      - /mnt/data/downloads/qbittorrent:/downloads
     environment:
      - PUID=1000
      - PGID=1000
@@ -203,8 +208,9 @@ services:
       - TZ=America/Sao_Paulo
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /mnt/docker/bazarr:/config
-      - /mnt/data:/data
+      - /docker/bazarr:/config
+      - /mnt/data/movies:/movies
+      - /mnt/data/series:/tv
     ports:
       - 6767:6767
     networks:
