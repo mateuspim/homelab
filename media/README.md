@@ -68,9 +68,10 @@ sudo mount -a
 
 ## Docker
 
-For every Linux distro is different how to install the docker engine so check the following [link](https://docs.docker.com/engine/install/) for more info
-After everyhing setup just run the command to setup the arr stack containers
+For every Linux distro is different how to install the docker engine so check the following [link](https://docs.docker.com/engine/install/) for more info.
+
+After everything setup just run the command to setup the arr stack containers
 
 ```
-docker compose -f arrstack-compose.yaml -d
+docker compose -f arrstack-compose.yaml up -d
 ```
