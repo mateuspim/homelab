@@ -16,6 +16,9 @@ An old pc upgraded to be my homelab station running Proxmox and serves as NAS, h
 * 250GB NVMe SSD (Boot drive)
 * x1 HDD 4TB (Main Pool) - to be upgraded
 
+#### Raspberry Pi 2
+Running Pi-hole (ad-blocking DNS), unbound (recursive DNS resolver), and Homer dashboard (Dead simple static homepage to expose your server services)
+
 ### Networking
 #### [TP-Link Archer AX10](https://www.amazon.com.br/ROTEADOR-AX1500-ARCHER-AX10-TP-LINK/dp/B07YP3T5H7?ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147)
 #### [TP-Link Switch](https://www.amazon.com.br/Switch-Gigabit-Mesa-Portas-Ls1005G/dp/B07VC68RW1?ufe=app_do%3Aamzn1.fos.6d798eae-cadf-45de-946a-f477d47705b9)
