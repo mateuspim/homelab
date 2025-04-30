@@ -4,6 +4,7 @@ A collection of all my configs of my home lab.
 ## Navigation
 * [Media](https://github.com/mateuspim/homelab/tree/main/media) - Media server with Jellyfin, arr stack and more.
 * [Storage](https://github.com/mateuspim/homelab/tree/main/storage) - Current Storage and Backup Solution.
+* [Raspberry](https://github.com/mateuspim/homelab/tree/main/raspberry) - Pi-hole with unbound and Homer dashboard
 
 ## Hardware
 
