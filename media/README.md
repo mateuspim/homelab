@@ -43,25 +43,30 @@ So now we must add our Samba share to auto mount every time this VM boots in ord
 sudo mkdir /mnt/data /mnt/docker
 ```
 
-2. Edit ```/etc/fstab``` and add: 
+2. To install CIFS, run the following command 
+```
+sudo apt-get install cifs-utils
+```
+
+3. Edit ```/etc/fstab``` and add: 
 ```
 //192.168.50.202/data /mnt/data cifs credentials=/home/pym/.smbcredentials,uid=1000,gid=1000,iocharset=utf8 0 0
 //192.168.50.202/docker /mnt/docker cifs credentials=/home/pym/.smbcredentials,uid=1000,gid=1000,iocharset=utf8 0 0
 ```
 
-2. Create the ```~/.smbcredentials``` file in your home directory:
+4. Create the ```~/.smbcredentials``` file in your home directory:
 ```
 username=pym
 password=password
 domain=media
 ```
 
-3. Make sure you secure your ```~/.smbcredentials``` file:
+5. Make sure you secure your ```~/.smbcredentials``` file:
 ```
 chmod 0600 ~/.smbcredentials
 ```
 
-4. Mount with:
+6. Mount with:
 ```
 sudo mount -a
 ```
