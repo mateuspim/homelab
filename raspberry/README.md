@@ -22,7 +22,7 @@ However, both setup and management are extensive, so I'll provide a link to a Yo
   src="https://raw.githubusercontent.com//bastienwirtz/homer/main/public/logo.png">
 </h1>
 
-Homer is a simple static homepage for your server, allowing you to manage services via a YAML configuration. It can be easily deployed using Docker:
+Homer is a simple static homepage for your server, allowing you to manage services via a [YAML](config.yml) configuration. It can be easily deployed using Docker:
 
 ```
 # Make sure your local config directory exists
@@ -33,7 +33,7 @@ docker run -d \
   --restart=unless-stopped \
   b4bz/homer:latest
 ```
-Alternatively, you can use ```docker-compose```
+Alternatively, you can use [```docker-compose```](compose.yaml)
 ```
 services:
   homer:
