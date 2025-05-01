@@ -1,22 +1,23 @@
 services:
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Sao_Paulo
-    volumes:
-      - /docker/jellyfin/library:/config
-      - /mnt/data/series:/data/tvshows
-      - /mnt/data/movies:/data/movies
-      - /mnt/data/anime:/data/anime
-    ports:
-      - 8096:8096
-      #- 8920:8920 # Https webUI
-      - 7359:7359/udp #Service Discovery
-      - 1900:1900/udp #Client Discovery
-    restart: unless-stopped
+  # Jellyfin is no longer running as a Docker container; instead, it is now running directly in an LXC container
+  # jellyfin:
+  #   image: lscr.io/linuxserver/jellyfin:latest
+  #   container_name: jellyfin
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=America/Sao_Paulo
+  #   volumes:
+  #     - /docker/jellyfin/library:/config
+  #     - /mnt/data/series:/data/tvshows
+  #     - /mnt/data/movies:/data/movies
+  #     - /mnt/data/anime:/data/anime
+  #   ports:
+  #     - 8096:8096
+  #     #- 8920:8920 # Https webUI
+  #     - 7359:7359/udp #Service Discovery
+  #     - 1900:1900/udp #Client Discovery
+  #   restart: unless-stopped
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
