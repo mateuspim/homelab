@@ -176,7 +176,7 @@ There are a lot of awesome Jellyfin themes and plugins available to use right of
 
 #### Notes
 
-For some plugins to work correctly it may be necessary to change the permissions of the ```index.html``` file by:
+For some plugins to work correctly with the Docker Container it may be necessary to change the permissions of the ```index.html``` file by:
 
 **Note** replace `user` and `group` with the `user` and `group` of your container
 ```
