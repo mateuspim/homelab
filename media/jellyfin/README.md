@@ -63,4 +63,4 @@ To enhance your experience running Jellyfin, I recommend the following tools:
 Jellyseerr is an application for managing requests for your media library. For more info, visit the [Jellyseerr GitHub repository](https://github.com/fallenbagel/jellyseerr).
 
 #### Jellystat
-An all-purpose Statistics tool for Jellyfin. For more info, visit the [Jellystat](https://github.com/CyferShepard/Jellystat) GitHub repository.
+An all-purpose Statistics tool for Jellyfin. For more info, visit the [Jellystat GitHub repository](https://github.com/CyferShepard/Jellystat).
