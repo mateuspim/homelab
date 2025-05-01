@@ -22,6 +22,7 @@ Once inside don't forget to run first the command `sudo apt update && sudo apt u
 ### Folder Mapping
 ```
 data
+├── anime
 ├── books
 ├── downloads
 │   └── qbittorrent
@@ -32,7 +33,6 @@ data
 ├── movies
 ├── music
 ├── series
-├── anime
 └── youtube
 ```
 ### SMB Share
