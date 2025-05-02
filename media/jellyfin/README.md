@@ -95,18 +95,90 @@ to
 
 ## Mount Points
 
-There are two ways to enable your SMB shares in an LXC container: you can add them directly through `/etc/fstab`, or you can add them as **Mount Points** in Proxmox. To do this, go to _Datacenter → Storage → Add → SMB/CIFS_. After entering all the correct information, the share dropdown menu will allow you to select the desired SMB shares from that server. Repeat this process for each share you want to add.
+Enabling SMB shares in an LXC container is a straightforward process; however, the steps vary depending on whether the container is **privileged** or **unprivileged**. Privileged containers have direct access to the host system and map the host's root user to the container's root user, eliminating the need for additional configuration for SMB access. Nevertheless, privileged containers are generally discouraged due to security concerns, as they provide less isolation from the host system.
 
-**Note:** Make sure **Content** is set to **Disk image**.  
+Enabling SMB shares in an LXC container is straightforward, but the process depends on whether your container is **privileged** or **unprivileged**. Privileged containers have direct access to the host machine and map the host’s root user to the container’s root user, so no additional configuration is needed for SMB access. However, privileged containers are considered unsafe and should generally be avoided for security reasons.
+
+Unprivileged containers, on the other hand, are much safer because they isolate the container’s root user from the host. This added security comes with a trade-off: you’ll need to perform extra configuration steps to ensure the container has the necessary read, write, and execute (rwx) permissions for your SMB shares.
+
+Source: [Unprivileged LXC Containers/Proxmox](https://pve.proxmox.com/wiki/Unprivileged_LXC_containers)
+
+### Privileged container
+
+ First, you must go to _Datacenter → Storage → Add → SMB/CIFS_. When adding an SMB/CIFS share, you need to provide the following information:
+- **ID**: A unique identifier for the share.
+- **Server**: The IP address or hostname of the SMB server.
+- **Username**: The username for accessing the SMB share.
+- **Password**: The password for the specified username.
+- **Share**: The name of the SMB share on the server.
+
+**Note:** Make sure **Content** is set to **Disk image**, as this ensures compatibility with Proxmox storage requirements for mounting SMB/CIFS shares.  
 ![Add SMB/CIFS share to Proxmox](../assets/proxmox_add_smb-cifs-share.png)
+
 
 After completing this step, you need to add new lines to the `/etc/pve/lxc/<container-id>.conf` file as shown below:
 
-**Note:** Performing this step will "disable" cloning of this LXC container, as Proxmox does not clone bind-mounted points. This limitation exists because bind mounts reference specific host paths, which cannot be replicated during the cloning process. As a result, workflows requiring identical containers may need to manually reconfigure bind mounts after cloning.
+**Note:** Customize these paths (`/mnt/pve/docker` and `/mnt/pve/data`) based on your Proxmox storage configuration and the directories available on your host system.
 ```
-mp0: /mnt/pve/docker,mp=/docker
-mp1: /mnt/pve/data,mp=/data
+mp0: /mnt/pve/docker,mp=/docker  # Mount point for Docker-related files
+mp1: /mnt/pve/data,mp=/data      # Mount point for general data storage
 ```
+**⚠️ Warning:** Performing this step will **disable cloning** of this LXC container because **Proxmox does not clone bind-mounted points**. Bind mounts reference specific host paths, which cannot be replicated during the cloning process. 
+As a result, workflows requiring identical containers will need to manually reconfigure bind mounts after cloning.
+
+### Unprivileged container
+
+To enable RWX in unprivileged container we must follow these instructions:
+
+1. In the LXC (run as **root**) 
+
+- First we must go to the guest LXC and create a group `lxc_shares` with GID=10000 that will later match the GID=110000 on the PVE host by running:
+  ```
+  groupadd -g 10000 lxc_shares
+  ```
+- Then add all users that will need access to the shares to the group just created by running:
+  ```
+  usermod -aG lxc_shares pym
+  usermod -aG lxc_shares jellyfin
+  ```
+- Shutdown the LXC guest machine.
+
+2. In the PVE Host (run as **host**)
+
+- Create the mount point by running:
+  ```
+  mkdir -p /mnt/lxc_shares/data
+  ```
+- Edit ```/etc/fstab``` and add: 
+  ```
+  //192.168.50.202/data/ /mnt/lxc_shares/data cifs _netdev,x-systemd.automount,noatime,uid=100000,gid=110000,dir_mode=0770,file_mode=0770,credentials=/root/.smbcredentials 0 0
+  ```
+
+- Create the ```~/.smbcredentials``` file in your home directory:
+  ```
+  username=username
+  password=password
+  domain=domain
+  ```
+  **Note:** Replace `username`, `password`, and `domain` with your actual SMB credentials.
+
+- Make sure you secure your ```~/.smbcredentials``` file:
+  ```
+  chmod 0600 ~/.smbcredentials
+  ```
+
+- Mount with:
+  ```
+  sudo mount /mnt/lxc_shares/data
+- Edit the `/etc/pve/lxc/<container-id>.conf` file to bind mount the share by (the `shared=1` option enables that container to be migrated across Proxmox nodes):
+  ```
+  mp0: /mnt/lxc_shares/data/,mp=/mnt/data,shared=1
+  ```
+3. Start the guest LXC container and you are good to go.
+
+Sources:
+- [TheHellSite/Proxmox Forum](https://forum.proxmox.com/threads/tutorial-unprivileged-lxcs-mount-cifs-shares.101795/) 
+- [Bayton/Mount CIFS/SMB shares RW in LXD containers](https://bayton.org/docs/linux/lxd/mount-cifssmb-shares-rw-in-lxd-containers/) 
 
 ## Permissions
 
