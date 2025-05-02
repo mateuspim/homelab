@@ -33,7 +33,6 @@ When using the Device Passthrough feature in Proxmox VMs, the resource becomes t
 
 Setting up a new LXC Container is as simple as pressing the _Create CT_ button at the top of the page.
 
-- **Note:** Ensure **Unprivileged Container** is **unchecked** for enabling hardware transcoding later.
 ![Create CT Example](../assets/proxmox_create_container.png)
 
 **Note** If this is the first LXC container you are creating, I recommend refraining from installing Jellyfin for now. Instead, install all necessary NVIDIA software, such as the NVIDIA drivers and CUDA toolkit, so you can later clone this container for new LXC containers as needed.
