@@ -102,7 +102,7 @@ There are two ways to enable your SMB shares in an LXC container: you can add th
 
 After completing this step, you need to add new lines to the `/etc/pve/lxc/<container-id>.conf` file as shown below:
 
-**Note:** Performing this step will "disable" cloning of this LXC container, as Proxmox does not clone mount points.
+**Note:** Performing this step will "disable" cloning of this LXC container, as Proxmox does not clone bind-mounted points. This limitation exists because bind mounts reference specific host paths, which cannot be replicated during the cloning process. As a result, workflows requiring identical containers may need to manually reconfigure bind mounts after cloning.
 ```
 mp0: /mnt/pve/docker,mp=/docker
 mp1: /mnt/pve/data,mp=/data
