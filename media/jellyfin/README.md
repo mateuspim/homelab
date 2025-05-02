@@ -70,8 +70,7 @@ Source: [Typhox/Proxmox-forum](https://forum.proxmox.com/threads/pve-7-0-lxc-int
 
 ##### CUDA Install
 
-The CUDA install method shown in the proxmox guide is outdated as in NVIDIA [site](https://developer.nvidia.com/cudnn-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local)
-
+The CUDA installation method in the Proxmox guide is outdated. The NVIDIA [site](https://developer.nvidia.com/cudnn-downloads) now provides updated instructions for installing the correct CUDA drivers for any Linux distribution.
 
 ##### SSH in LXC Container
 Enabling ssh in LXC Container without SSL Keys by modifying the `/etc/ssh/sshd_config` file by changing:
