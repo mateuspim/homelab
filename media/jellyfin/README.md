@@ -110,7 +110,7 @@ Changing permissions are only necessary for the OS install of jellyfin.
 Now after all configured and setup just spin up the machine.
 But first we must fix the permissions of the Jellyfin user by:
 
-1. Stop the Jellyfin service. `sudo systemctl jellyfin stop` 
+1. Stop the Jellyfin service. `sudo systemctl stop jellyfin` 
 2. Edit the Jellyfin service configuration to reflect your user. `sudo nano /lib/systemd/system/jellyfin.service`. Now change the `user` and `group` to your main user. You can run the `id` command if you're unsure.
 
 ```
