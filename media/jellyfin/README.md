@@ -97,8 +97,6 @@ to
 
 Enabling SMB shares in an LXC container is a straightforward process; however, the steps vary depending on whether the container is **privileged** or **unprivileged**. Privileged containers have direct access to the host system and map the host's root user to the container's root user, eliminating the need for additional configuration for SMB access. Nevertheless, privileged containers are generally discouraged due to security concerns, as they provide less isolation from the host system.
 
-Enabling SMB shares in an LXC container is straightforward, but the process depends on whether your container is **privileged** or **unprivileged**. Privileged containers have direct access to the host machine and map the host’s root user to the container’s root user, so no additional configuration is needed for SMB access. However, privileged containers are considered unsafe and should generally be avoided for security reasons.
-
 Unprivileged containers, on the other hand, are much safer because they isolate the container’s root user from the host. This added security comes with a trade-off: you’ll need to perform extra configuration steps to ensure the container has the necessary read, write, and execute (rwx) permissions for your SMB shares.
 
 Source: [Unprivileged LXC Containers/Proxmox](https://pve.proxmox.com/wiki/Unprivileged_LXC_containers)
