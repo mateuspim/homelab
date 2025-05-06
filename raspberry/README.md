@@ -4,9 +4,7 @@ This section provides an overview of my Raspberry Pi server, which is configured
 
 ## Setup
 
-### <img width="100" alt="Homer's donut" src="https://wp-cdn.pi-hole.net/wp-content/uploads/2023/05/pihole-logo-horizontal-white-e1683321640117.png"> Pihole with Unbound
-
-![Pihole logo](https://wp-cdn.pi-hole.net/wp-content/uploads/2023/05/pihole-logo-horizontal-white-e1683321640117.png)
+### <img width="30" alt="Homer's donut" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/pi-hole.png"> Pihole with Unbound
 
 [Pihole](https://github.com/pi-hole/pi-hole/#one-step-automated-install) in itself is great to serve as a ad-blocking DNS service but it can be enhanced further when paired with [Unbound](https://docs.pi-hole.net/guides/dns/unbound/) to create an All-Around DNS solution for your home LAN. 
 However, both setup and management are extensive, so I'll provide a link to a YouTube guide made by [Craft Computing](https://www.youtube.com/@CraftComputing) that explains all the steps to create your own Recursive DNS Server below.
