@@ -1,0 +1,141 @@
+services:
+  open-webui:
+    build:
+      context: .
+      args:
+        OLLAMA_BASE_URL: '/ollama'
+      dockerfile: Dockerfile
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
+    volumes:
+      - /docker/open-webui:/app/backend/data
+    ports:
+      - ${OPEN_WEBUI_PORT-3000}:8080
+    environment:
+      - ENABLE_RAG_WEB_SEARCH= True
+      - RAG_WEB_SEARCH_ENGINE= "searxng"
+      - RAG_WEB_SEARCH_RESULT_COUNT= 3
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS= 10
+      - SEARXNG_QUERY_URL="http://host.docker.internal:8080/search?q=<query>"
+      - OLLAMA_BASE_URL=http://192.168.50.212:11434
+      - WEBUI_SECRET_KEY="THIS IS A LONG SECRET KEY"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+  searxng:
+    container_name: searxng
+    image: docker.io/searxng/searxng:latest
+    volumes:
+      - /mnt/docker/searxng:/etc/searxng:rw
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PASSWORD=password #optional
+      - SUDO_PASSWORD=password #optional
+      - PROXY_DOMAIN=code-server.my.domain #optional
+      - DEFAULT_WORKSPACE=/config/workspace #optional
+    volumes:
+      - /mnt/docker/code-server/config:/config
+    ports:
+      - 8443:8443
+    restart: unless-stopped
+
+  excalidraw:
+    image: excalidraw/excalidraw
+    container_name: excalidraw
+    ports:
+      - 5000:80
+       
+  affine:
+    image: ghcr.io/toeverything/affine-graphql:${AFFINE_REVISION:-stable}
+    container_name: affine_server
+    ports:
+      - '${PORT:-3010}:3010'
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      affine_migration:
+        condition: service_completed_successfully
+    volumes:
+      # custom configurations
+      - ${UPLOAD_LOCATION}:/root/.affine/storage
+      - ${CONFIG_LOCATION}:/root/.affine/config
+    env_file:
+      - .env
+    environment:
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
+    restart: unless-stopped
+
+  affine_migration:
+    image: ghcr.io/toeverything/affine-graphql:${AFFINE_REVISION:-stable}
+    container_name: affine_migration_job
+    volumes:
+      # custom configurations
+      - ${UPLOAD_LOCATION}:/root/.affine/storage
+      - ${CONFIG_LOCATION}:/root/.affine/config
+    command: ['sh', '-c', 'node ./scripts/self-host-predeploy.js']
+    env_file:
+      - .env
+    environment:
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=postgresql://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE:-affine}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis
+    container_name: affine_redis
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: affine_postgres
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE:-affine}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
+      # you better set a password for you database
+      # or you may add 'POSTGRES_HOST_AUTH_METHOD=trust' to ignore postgres security policy
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test:
+        ['CMD', 'pg_isready', '-U', "${DB_USERNAME}", '-d', "${DB_DATABASE:-affine}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
