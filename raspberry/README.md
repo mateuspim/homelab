@@ -4,7 +4,7 @@ This section provides an overview of my Raspberry Pi server, which is configured
 
 ## Setup
 
-### Pihole with Unbound
+### <img width="100" alt="Homer's donut" src="https://wp-cdn.pi-hole.net/wp-content/uploads/2023/05/pihole-logo-horizontal-white-e1683321640117.png"> Pihole with Unbound
 
 ![Pihole logo](https://wp-cdn.pi-hole.net/wp-content/uploads/2023/05/pihole-logo-horizontal-white-e1683321640117.png)
 
@@ -13,14 +13,7 @@ However, both setup and management are extensive, so I'll provide a link to a Yo
 
 [![You're running Pi-Hole wrong! Setting up your own Recursive DNS Server!](https://img.youtube.com/vi/FnFtWsZ8IP0/0.jpg)](https://www.youtube.com/watch?v=FnFtWsZ8IP0)
 
-### Homer Dashboard
-
-<h1 align="left">
- <img
-  width="180"
-  alt="Homer's donut"
-  src="https://raw.githubusercontent.com//bastienwirtz/homer/main/public/logo.png">
-</h1>
+### <img width="30" alt="Homer's donut" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homer.png"> Homer Dashboard
 
 Homer is a simple static homepage for your server, allowing you to manage services via a [YAML](config.yml) configuration. It can be easily deployed using Docker:
 
