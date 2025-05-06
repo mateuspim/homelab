@@ -4,9 +4,10 @@ A collection of all my configs of my home lab.
 ![Homelab](assets/homer-dashboard.jpg)
 
 ## Navigation
-* [Media](https://github.com/mateuspim/homelab/tree/main/media) - Media server with Jellyfin, arr stack and more.
-* [Storage](https://github.com/mateuspim/homelab/tree/main/storage) - Current Storage and Backup Solution.
-* [Raspberry](https://github.com/mateuspim/homelab/tree/main/raspberry) - Pi-hole with unbound and Homer dashboard
+* [Media](https://github.com/mateuspim/homelab/tree/main/media) - Media server setup with Jellyfin and arr stack.
+* [Raspberry](https://github.com/mateuspim/homelab/tree/main/raspberry) - Pi-hole with unbound and Homer.
+* [Storage](https://github.com/mateuspim/homelab/tree/main/storage) - Storage and backup solutions.
+* [Tools](https://github.com/mateuspim/homelab/tree/main/tools) - Productivity, programming, and AI tools.
 
 ## Hardware
 
