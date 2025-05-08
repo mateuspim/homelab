@@ -66,6 +66,7 @@ services:
     container_name: excalidraw
     ports:
       - 5000:80
+    restart: unless-stopped
        
   affine:
     image: ghcr.io/toeverything/affine-graphql:${AFFINE_REVISION:-stable}
