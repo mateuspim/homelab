@@ -38,6 +38,37 @@ Code-Server allows you to run Visual Studio Code in the browser, hosted on my ho
 ![Code-Server Example](assets/code-server.png)
 Source: [Code server docker](https://hub.docker.com/r/linuxserver/code-server)
 
+**Additional Notes**: I run a modified code-server image to avoid reinstalling Python, Go, Java, and Rust compilers every time. Additionally, I added UV, a lightweight Python package manager designed for enhanced dependency management and faster installations, to streamline Python workflows. To achieve this, you must clone the Docker code-server repository and build it locally with your changes like:
+```
+git clone https://github.com/linuxserver/docker-code-server.git
+cd docker-code-server
+```
+Edit the Dockerfile using your preferred text editor (e.g., nano, vim, or VS Code) and add the following to it:
+```
+# Update and install Python3, Go, Java, and Rust
+RUN \
+  echo "**** install python3, GO, Java and Rust ****" && \
+  apt-get update && \
+  apt-get install -y \
+    python3 \
+    python3-pip \
+    golang \
+    default-jre \
+    rustc && \
+  apt-get clean
+
+# Install UV, a Python package manager, for enhanced package management capabilities
+# More details: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+```
+after that you can just build the image by:
+```
+docker build \
+  --no-cache \
+  --pull \
+  -t lscr.io/linuxserver/code-server:latest .
+```
+
 ## Productivity
 
 ### <img width="30" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/excalidraw.png" alt="Excalidraw icon"> Excalidraw
