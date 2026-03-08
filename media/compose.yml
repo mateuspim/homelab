@@ -1,0 +1,230 @@
+networks:
+  servarrnetwork:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/24
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.2
+    ports:
+      - 8080:8080 # qbittorrent web interface
+      - 6881:6881 # qbittorrent torrent port
+      # - 52000-52100:52000-52100/udp
+      # - 9696:9696 # prowlarr
+    volumes:
+      - /mnt/docker/gluetun:/gluetun
+    env_file:
+      - /mnt/docker/gluetun/.env
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=openvpn
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24
+      - SERVER_COUNTRIES=Brazil
+      - TZ=America/Sao_Paulo
+      - HEALTH_VPN_DURATION_INITIAL=120s
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 60s
+      timeout: 20s
+      retries: 5
+    restart: unless-stopped
+
+  deunhealth:
+    image: qmcgaw/deunhealth
+    container_name: deunhealth
+    network_mode: "none"
+    environment:
+      - LOG_LEVEL=info
+      - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
+      - TZ=America/Sao_Paulo
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    labels:
+      - deunhealth.restart.on.unhealthy=true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - /mnt/docker/qbittorrent:/config
+      - /mnt/data/downloads/qbittorrent:/downloads
+    depends_on:
+      - gluetun
+    network_mode: service:gluetun
+    healthcheck:
+        test: ping -c 1 www.google.com || exit 1
+        interval: 60s
+        retries: 3
+        start_period: 20s
+        timeout: 10s
+
+  jellyseerr:
+    image: ghcr.io/fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - TZ=America/Sao_Paulo
+    ports:
+      - 5055:5055
+    volumes:
+      - /docker/jellyseerr/config:/app/config
+    restart: unless-stopped
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.12
+    depends_on:
+      - sonarr
+      - radarr
+      - lidarr
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /docker/prowlarr:/config
+    restart: unless-stopped
+    ports:
+      - 9696:9696
+    depends_on:
+      - flaresolverr
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.14
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /docker/sonarr:/config
+      - /mnt/data/series:/tv
+      - /mnt/data/anime:/anime
+      - /mnt/data/downloads/qbittorrent:/downloads
+    ports:
+      - 8989:8989
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.3
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /docker/radarr:/config
+      - /mnt/data/movies:/movies
+      - /mnt/data/downloads/qbittorrent:/downloads
+    ports:
+      - 7878:7878
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.4
+    depends_on:
+      - prowlarr
+      - qbittorrent
+
+  lidarr:
+    container_name: lidarr
+    image: lscr.io/linuxserver/lidarr:latest
+    restart: unless-stopped
+    volumes:
+      - /docker/lidarr:/config
+      - /mnt/data/music:/music
+      - /mnt/data/downloads/qbittorrent:/downloads
+    environment:
+     - PUID=1000
+     - PGID=1000
+     - TZ=America/Sao_Paulo
+    ports:
+      - 8686:8686
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.5
+    depends_on:
+      - prowlarr
+      - qbittorrent
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /docker/bazarr:/config
+      - /mnt/data/movies:/movies
+      - /mnt/data/series:/tv
+      - /mnt/data/anime:/anime
+    ports:
+      - 6767:6767
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.6
+    depends_on:
+      - sonarr
+      - radarr
+
+# Used to browse the file system via a web browser.
+  filebrowser:
+    image: filebrowser/filebrowser:s6
+    container_name: filebrowser
+    volumes:
+      - /mnt/data:/srv
+      - /mnt/docker/filebrowser/data:/data
+      - /mnt/docker/filebrowser/config:/config
+      - /mnt/docker/filebrowser/database:/database
+    environment:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 80:80
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.7
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    hostname: flaresolverr
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.9
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=America/Sao_Paulo
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
