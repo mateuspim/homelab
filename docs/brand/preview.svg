@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+<defs>
+  <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0b1015"/><stop offset=".58" stop-color="#0a111b"/><stop offset="1" stop-color="#102236"/>
+  </linearGradient>
+  <radialGradient id="accentGlow" cx="0" cy="1" r="1">
+    <stop offset="0" stop-color="#d9621a" stop-opacity=".26"/><stop offset=".64" stop-color="#d9621a" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="blueGlow" cx="1" cy="0" r="1">
+    <stop offset="0" stop-color="#264d78" stop-opacity=".27"/><stop offset=".7" stop-color="#264d78" stop-opacity="0"/>
+  </radialGradient>
+  <pattern id="dots" width="56" height="56" patternUnits="userSpaceOnUse">
+    <circle cx="5" cy="5" r="2.4" fill="#7a8f9d" opacity=".16"/>
+  </pattern>
+  <linearGradient id="line" x1="0" x2="1"><stop stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></linearGradient>
+  <filter id="shadow" x="-.2" y="-.2" width="1.5" height="1.6"><feGaussianBlur stdDeviation="45"/></filter>
+</defs>
+<rect width="3840" height="2160" fill="url(#background)"/>
+<rect width="3840" height="2160" fill="url(#accentGlow)"/>
+<rect width="3840" height="2160" fill="url(#blueGlow)"/>
+<rect width="3840" height="2160" fill="url(#dots)"/>
+<rect width="3840" height="2160" fill="#070b0f" opacity=".13"/>
+<!-- icon.svg inlined so this file renders standalone -->
+<g transform="translate(198 418) scale(0.90625)">
+  <rect x="5" y="5" width="246" height="246" rx="48" fill="#22160d" stroke="#ff8a3d" stroke-width="6"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="50" y="52" width="156" height="42" rx="9" fill="#ff8a3d"/>
+    <rect x="50" y="107" width="156" height="42" rx="9" stroke="#d96a1f" stroke-width="12"/>
+    <rect x="50" y="162" width="156" height="42" rx="9" stroke="#d96a1f" stroke-width="12"/>
+    <path d="M74 73H130" stroke="#22160d" stroke-width="12"/>
+    <circle cx="180" cy="73" r="7" fill="#22160d"/>
+    <circle cx="180" cy="128" r="7" fill="#37da88"/>
+    <circle cx="180" cy="183" r="7" fill="#37da88"/>
+  </g>
+</g>
+<text x="478" y="616" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="230" font-weight="700" letter-spacing="-10" fill="#eff4f7">home<tspan fill="#ff8a3d">lab</tspan></text>
+<text x="208" y="836" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="88" font-weight="700" fill="#e9f0f5">Two nodes in a closet.</text>
+<text x="208" y="952" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="48" fill="#9ca9b4">Media, photos, files, passwords and git for the house.</text>
+<text x="208" y="1020" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="48" fill="#9ca9b4">A separate shed for agents and work. Backed up off-site.</text>
+<g font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="34" fill="#e6edf0">
+  <rect x="208" y="1115" width="315" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="250" cy="1167" r="11" fill="#ff8a3d"/><text x="280" y="1181">Proxmox VE</text>
+  <rect x="545.0" y="1115" width="172" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="587.0" cy="1167" r="11" fill="#ff8a3d"/><text x="617.0" y="1181">ZFS</text>
+  <rect x="738.5" y="1115" width="233" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="780.5" cy="1167" r="11" fill="#ff8a3d"/><text x="810.5" y="1181">Docker</text>
+  <rect x="208" y="1240" width="294" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="250" cy="1292" r="11" fill="#ff8a3d"/><text x="280" y="1306">Tailscale</text>
+  <rect x="524.5" y="1240" width="458" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="566.5" cy="1292" r="11" fill="#ff8a3d"/><text x="596.5" y="1306">Cloudflare Tunnel</text>
+  <rect x="1005.0" y="1240" width="356" height="104" fill="#101b22" stroke="#35454d" stroke-width="3"/>
+  <circle cx="1047.0" cy="1292" r="11" fill="#ff8a3d"/><text x="1077.0" y="1306">rclone crypt</text>
+</g>
+<rect x="208" y="1460" width="1260" height="152" fill="#0b1218" stroke="#3c505c" stroke-width="3"/>
+<text x="263" y="1560" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="60" fill="#ff8a3d">$</text>
+<text x="350" y="1560" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="60" fill="#e8eff4">ssh homelab</text>
+<path d="M209 1732H1395" stroke="url(#line)" stroke-width="5"/>
+<text x="208" y="1815" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="36" letter-spacing="3" fill="#71838f">JELLYFIN  /  ARR STACK  /  IMMICH  /  NEXTCLOUD</text>
+<g transform="translate(1980 250) rotate(-4 790 440)">
+  <rect x="30" y="42" width="1580" height="880" rx="22" fill="#000" opacity=".55" filter="url(#shadow)"/>
+  <rect width="1580" height="880" rx="18" fill="#121820" stroke="#516371" stroke-width="7"/>
+  <path d="M4 22a18 18 0 0 1 18-18H1558a18 18 0 0 1 18 18V96H4Z" fill="#18212b"/>
+  <circle cx="60" cy="50" r="15" fill="#ff5f57"/>
+  <circle cx="112" cy="50" r="15" fill="#febc2e"/>
+  <circle cx="164" cy="50" r="15" fill="#28c840"/>
+  <text x="790" y="66" text-anchor="middle" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="40" fill="#9ca9b4">pve · Proxmox VE 9.1</text>
+  <g font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="44" fill="#e6edf0">
+    <text x="70" y="190" font-size="36" letter-spacing="3" fill="#71838f">GUESTS</text>
+    <circle cx="86" cy="260" r="12" fill="#37da88"/><text x="122" y="275" fill="#71838f">CT 100</text><text x="330" y="275">cloudflared</text>
+    <circle cx="86" cy="356" r="12" fill="#37da88"/><text x="122" y="371" fill="#71838f">CT 101</text><text x="330" y="371">tailscale</text>
+    <circle cx="86" cy="452" r="12" fill="#37da88"/><text x="122" y="467" fill="#71838f">CT 121</text><text x="330" y="467">gitea</text>
+    <circle cx="86" cy="548" r="12" fill="#37da88"/><text x="122" y="563" fill="#71838f">CT 201</text><text x="330" y="563">vaultwarden</text>
+    <circle cx="86" cy="644" r="12" fill="#37da88"/><text x="122" y="659" fill="#71838f">CT 202</text><text x="330" y="659">nas</text>
+    <circle cx="86" cy="740" r="12" fill="#37da88"/><text x="122" y="755" fill="#71838f">VM 205</text><text x="330" y="755">media</text>
+    <text x="860" y="190" font-size="36" letter-spacing="3" fill="#71838f">ZFS POOLS</text>
+    <text x="860" y="280">zeus</text><text x="1500" y="280" text-anchor="end" fill="#71838f">4T</text>
+    <rect x="860" y="306" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="306" width="358" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="420">apollo</text><text x="1500" y="420" text-anchor="end" fill="#71838f">2T</text>
+    <rect x="860" y="446" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="446" width="499" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="560">dionysus</text><text x="1500" y="560" text-anchor="end" fill="#71838f">1T</text>
+    <rect x="860" y="586" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="586" width="390" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="700">poseidon</text><text x="1500" y="700" text-anchor="end" fill="#71838f">2T</text>
+    <rect x="860" y="726" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="726" width="51" height="22" rx="11" fill="#ff8a3d"/>
+  </g>
+</g>
+<g transform="translate(2110 1110) rotate(3 825 440)">
+  <rect x="35" y="47" width="1650" height="880" rx="24" fill="#000" opacity=".67" filter="url(#shadow)"/>
+  <rect width="1650" height="880" rx="19" fill="#0d1217" stroke="#5a6e76" stroke-width="7"/>
+  <g font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="40" fill="#e6edf0" xml:space="preserve">
+    <text x="64" y="104"><tspan fill="#ff8a3d">media</tspan><tspan fill="#71838f"> $ </tspan>docker ps --format "{{.Names}}"</text>
+    <text x="64" y="200">jellyfin</text><text x="664" y="200" fill="#37da88">Up</text>
+    <text x="64" y="278">jellyseerr</text><text x="664" y="278" fill="#37da88">Up</text>
+    <text x="64" y="356">jellystat</text><text x="664" y="356" fill="#37da88">Up</text>
+    <text x="64" y="434">sonarr</text><text x="664" y="434" fill="#37da88">Up</text>
+    <text x="64" y="512">radarr</text><text x="664" y="512" fill="#37da88">Up</text>
+    <text x="64" y="590">lidarr</text><text x="664" y="590" fill="#37da88">Up</text>
+    <text x="64" y="668">bazarr</text><text x="664" y="668" fill="#37da88">Up</text>
+    <text x="64" y="746">prowlarr</text><text x="664" y="746" fill="#37da88">Up</text>
+    <text x="854" y="200">qbittorrent</text><text x="1454" y="200" fill="#37da88">Up</text>
+    <text x="854" y="278">gluetun</text><text x="1454" y="278" fill="#37da88">Up</text>
+    <text x="854" y="356">immich_server</text><text x="1454" y="356" fill="#37da88">Up</text>
+    <text x="854" y="434">nextcloud</text><text x="1454" y="434" fill="#37da88">Up</text>
+    <text x="854" y="512">kavita</text><text x="1454" y="512" fill="#37da88">Up</text>
+    <text x="854" y="590">romm</text><text x="1454" y="590" fill="#37da88">Up</text>
+    <text x="854" y="668">homarr</text><text x="1454" y="668" fill="#37da88">Up</text>
+    <text x="854" y="746">filebrowser</text><text x="1454" y="746" fill="#37da88">Up</text>
+    <text x="64" y="836"><tspan fill="#ff8a3d">media</tspan><tspan fill="#71838f"> $ </tspan><tspan fill="#e6edf0">▍</tspan></text>
+  </g>
+</g>
+</svg>

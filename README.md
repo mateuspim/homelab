@@ -1,4 +1,6 @@
-# homelab
+# <img src="icon.svg" alt="" width="32" height="32" align="top"> homelab
+
+![homelab hero: the Proxmox guest list and ZFS pools next to the Media VM's running containers](preview.png)
 
 My self-hosted setup: two Proxmox nodes in a closet. One is the **homelab**, which runs media, photos, files, passwords and git for the house. The other is the **lab**, my own workshop for AI agents and work dev environments. Everything is reachable from anywhere through Tailscale, and a few things are published through a Cloudflare Tunnel.
 
