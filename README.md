@@ -81,11 +81,11 @@ flowchart LR
 
 | Guest | Service | Role |
 | --- | --- | --- |
-| CT 100 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/cloudflare.png"> cloudflared | Cloudflare Tunnel for the few public endpoints, plus a small service that temporarily whitelists an IP. No ports are open on the router |
-| CT 101 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/tailscale.png"> Tailscale | Subnet router and exit node: the whole LAN is reachable from my devices anywhere, and I can route traffic home on untrusted Wi-Fi |
-| CT 121 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/gitea.png"> Gitea | Private git, plus a Gitea Actions runner for CI. Nightly `gitea dump` |
-| CT 201 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/vaultwarden.png"> Vaultwarden | Password manager (Bitwarden-compatible) |
-| CT 202 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/samba-server.png"> NAS | Samba shares over the ZFS datasets, and the off-site backup jobs |
+| CT&nbsp;100 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/cloudflare.png"> cloudflared | Cloudflare Tunnel for the few public endpoints, plus a small service that temporarily whitelists an IP. No ports are open on the router |
+| CT&nbsp;101 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/tailscale.png"> Tailscale | Subnet router and exit node: the whole LAN is reachable from my devices anywhere, and I can route traffic home on untrusted Wi-Fi |
+| CT&nbsp;121 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/gitea.png"> Gitea | Private git, plus a Gitea Actions runner for CI. Nightly `gitea dump` |
+| CT&nbsp;201 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/vaultwarden.png"> Vaultwarden | Password manager (Bitwarden-compatible) |
+| CT&nbsp;202 | <img width="16" src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/samba-server.png"> NAS | Samba shares over the ZFS datasets, and the off-site backup jobs |
 
 ### Media VM (VM 205: Debian, Docker)
 
