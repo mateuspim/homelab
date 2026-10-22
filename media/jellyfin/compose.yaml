@@ -14,11 +14,12 @@ services:
     container_name: jellyfin
     restart: unless-stopped
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
     volumes:
-      - /docker/jellyfin/library:/config
+      - /mnt/data/jellyfin/library:/config
+      - /mnt/data/jellyfin-transcode:/transcode
       - /mnt/data/anime:/data/anime
       - /mnt/data/movies:/data/movies
       - /mnt/data/music:/data/music
@@ -32,7 +33,7 @@ services:
         ipv4_address: 172.30.0.20
 
   jellystat-db:
-    image: postgres:15.2
+    image: postgres:18.1
     container_name: jellystat-db
     restart: unless-stopped
     env_file:
@@ -40,7 +41,7 @@ services:
     environment:
       TZ: America/Sao_Paulo
     volumes:
-      - 'postgres-data:/var/lib/postgresql/data'
+      - 'postgres-data:/var/lib/postgresql'
     networks:
       jellyfin_network:
         ipv4_address: 172.30.0.21

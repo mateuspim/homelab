@@ -18,19 +18,21 @@ services:
     ports:
       - 8080:8080 # qbittorrent web interface
       - 6881:6881 # qbittorrent torrent port
-      # - 52000-52100:52000-52100/udp
-      # - 9696:9696 # prowlarr
+      - 9696:9696 # prowlarr
+      - 8191:8191 # flaresolverr
     volumes:
       - /mnt/docker/gluetun:/gluetun
     env_file:
       - /mnt/docker/gluetun/.env
     environment:
-      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_SERVICE_PROVIDER=protonvpn
       - VPN_TYPE=openvpn
-      - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.50.0/24,172.22.0.0/24
       - SERVER_COUNTRIES=Brazil
       - TZ=America/Sao_Paulo
+      - HOME=/data
       - HEALTH_VPN_DURATION_INITIAL=120s
+      - BLOCK_MALICIOUS=off
     healthcheck:
       test: ping -c 1 www.google.com || exit 1
       interval: 60s
@@ -41,11 +43,12 @@ services:
   deunhealth:
     image: qmcgaw/deunhealth
     container_name: deunhealth
-    network_mode: "none"
+    network_mode: none
     environment:
       - LOG_LEVEL=info
       - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
       - TZ=America/Sao_Paulo
+      - HOME=/data
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -57,14 +60,18 @@ services:
     labels:
       - deunhealth.restart.on.unhealthy=true
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
+      # qBittorrent writes XDG/cache files under HOME; /config is its writable
+      # persistent volume, while /data is not mounted in this container.
+      - HOME=/config
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
     volumes:
       - /mnt/docker/qbittorrent:/config
       - /mnt/data/downloads/qbittorrent:/downloads
+      - /mnt/data:/data
     depends_on:
       - gluetun
     network_mode: service:gluetun
@@ -80,6 +87,7 @@ services:
     container_name: jellyseerr
     environment:
       - TZ=America/Sao_Paulo
+      - HOME=/data
     ports:
       - 5055:5055
     volumes:
@@ -92,56 +100,66 @@ services:
       - sonarr
       - radarr
       - lidarr
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
+      - HOME=/data
     volumes:
       - /docker/prowlarr:/config
     restart: unless-stopped
-    ports:
-      - 9696:9696
+    network_mode: service:gluetun
     depends_on:
-      - flaresolverr
-    networks:
-      servarrnetwork:
-        ipv4_address: 172.22.0.14
+      gluetun:
+        condition: service_healthy
+      flaresolverr:
+        condition: service_started
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     restart: unless-stopped
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
+      - HOME=/data
     volumes:
       - /docker/sonarr:/config
       - /mnt/data/series:/tv
       - /mnt/data/anime:/anime
       - /mnt/data/downloads/qbittorrent:/downloads
+      - /mnt/data:/data
     ports:
       - 8989:8989
     networks:
       servarrnetwork:
         ipv4_address: 172.22.0.3
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     restart: unless-stopped
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
+      - HOME=/data
     volumes:
       - /docker/radarr:/config
       - /mnt/data/movies:/movies
       - /mnt/data/downloads/qbittorrent:/downloads
+      - /mnt/data:/data
     ports:
       - 7878:7878
     networks:
@@ -150,6 +168,9 @@ services:
     depends_on:
       - prowlarr
       - qbittorrent
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
 
   lidarr:
     container_name: lidarr
@@ -160,8 +181,8 @@ services:
       - /mnt/data/music:/music
       - /mnt/data/downloads/qbittorrent:/downloads
     environment:
-     - PUID=1000
-     - PGID=1000
+     - PUID=101000
+     - PGID=101000
      - TZ=America/Sao_Paulo
     ports:
       - 8686:8686
@@ -171,15 +192,19 @@ services:
     depends_on:
       - prowlarr
       - qbittorrent
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     restart: unless-stopped
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
       - TZ=America/Sao_Paulo
+      - HOME=/data
     volumes:
       - /docker/bazarr:/config
       - /mnt/data/movies:/movies
@@ -193,21 +218,26 @@ services:
     depends_on:
       - sonarr
       - radarr
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
 
-# Used to browse the file system via a web browser.
   filebrowser:
     image: filebrowser/filebrowser:s6
     container_name: filebrowser
     volumes:
-      - /mnt/data:/srv
+      - /mnt/data:/srv/data
+      - /mnt/roms:/srv/roms
+      - /mnt/stuff:/srv/stuff
+      - /mnt/backup:/srv/backup:ro
       - /mnt/docker/filebrowser/data:/data
       - /mnt/docker/filebrowser/config:/config
       - /mnt/docker/filebrowser/database:/database
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=101000
+      - PGID=101000
     ports:
-      - 80:80
+      - 8088:80
     networks:
       servarrnetwork:
         ipv4_address: 172.22.0.7
@@ -216,15 +246,61 @@ services:
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
-    hostname: flaresolverr
-    networks:
-      servarrnetwork:
-        ipv4_address: 172.22.0.9
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
       - TZ=America/Sao_Paulo
-    ports:
-      - "${PORT:-8191}:8191"
     restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  kapowarr:
+    image: mrcas/kapowarr:latest
+    container_name: kapowarr
+    restart: unless-stopped
+    environment:
+      - PUID=101000
+      - PGID=101000
+      - TZ=America/Sao_Paulo
+      - HOME=/data
+    volumes:
+      - /docker/kapowarr:/app/db
+      - /mnt/data/downloads/qbittorrent:/downloads
+      - /mnt/data/downloads/qbittorrent:/app/temp_downloads
+      - /mnt/data/comics:/comics
+    ports:
+      - 5656:5656
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.8
+    depends_on:
+      - prowlarr
+      - qbittorrent
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: kavita
+    environment:
+      - PUID=101000
+      - PGID=101000
+      - TZ=America/Sao_Paulo
+      - HOME=/data
+    volumes:
+      - /docker/kavita:/config
+      - /mnt/data/books:/books
+      - /mnt/data/comics:/comics
+    ports:
+      - 5000:5000
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.22.0.50
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1

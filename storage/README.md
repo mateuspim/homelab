@@ -1,200 +1,38 @@
 # Storage
 
-This section describes my storage solution running on my homelab. Recently, I had all my ZFS pools managed via TrueNas, however I intend to use Proxmox from now on to manage all my storage needs.
+Proxmox manages all the storage directly with ZFS (TrueNAS was dropped a while ago). Each data disk is its own single-disk pool, named after a Greek god.
 
-## Proxmox
+## Disks and pools
 
-My current setup involves a single NVMe drive to manage both boot drive and storage for containers and VMs and HDD in ZFS configuration to serve as my NAS.
+| Pool | Disk | Size | Holds |
+| --- | --- | --- | --- |
+| `local-lvm` (LVM-thin) | ADATA SU650 SATA SSD | 240 GB | Proxmox root, every LXC rootfs, Media VM disks |
+| `zeus` | Seagate IronWolf | 4 TB | Main data (movies, series, anime, music, books, comics, downloads) and app config |
+| `apollo` | Seagate 2.5" | 2 TB | Encrypted `stuff` dataset: new media and downloads layout, misc files |
+| `dionysus` | Toshiba 2.5" | 1 TB | ROM library |
+| `poseidon` | WD Purple | 2 TB | Backups: vzdump archives for both nodes |
 
-## Initial Setup
+All datasets use `compression=lz4`, `atime=off`, `ashift=12`. Datasets passed to the VM through virtiofs also have `acltype=posix`. Without it, the VM gets `Operation not supported` when it mounts them with `expose-acl`. Each pool is scrubbed monthly.
 
-Since I'm using Proxmox for personal purposes, I must disable the enterprise repositories to ensure proper updates.
+> ⚠️ **No redundancy yet.** Every pool is a single disk. A disk failure means restoring from [backups](../backups/), and the main data pool has no off-site copy. Mirroring `zeus` is the top item on the roadmap.
 
-#### Disable Enterprise Repositories
+## How storage reaches guests
 
-![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_enterprise_repo.png?raw=true)
-
-1. Navigate to _Node > Repositories_ Disable the enterprise repositories.
-2. Now click Add and enable the no subscription repository. Finally, go _Updates > Refresh_.
-3. Upgrade your system by clicking _Upgrade_ above the repository setting page.
-
-#### Enable IOMMU
-
-Enable IOMMU on in grub configuration within _Node > Shell_.
-
-```
-nano /etc/default/grub
-```
-
-Add `intel_iommu=on` or `amd_iommu=on` to the `GRUB_CMDLINE_LINUX_DEFAULT` line depending on your system
-
-```
-# Should look like this
-GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"
+```mermaid
+flowchart LR
+    ZFS[(ZFS datasets on pve)]
+    ZFS -- "bind mounts (mp0–mp5)" --> NAS[CT 202 NAS<br/>Samba]
+    ZFS -- "virtiofs (directory mappings)" --> VM[VM 205 Media<br/>Docker]
+    NAS -- SMB --> LAN[Desktops / laptops / lab]
 ```
 
-![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_enable_iommu.png?raw=true)
-Next run the following commands and reboot your system.
+- **NAS (CT 202, unprivileged LXC)** gets the datasets as bind mounts and shares them over Samba: `data`, `docker`, `backup`, `roms`, `media`, `downloads`. Access is limited to the LAN subnet and named users. The lab node has its own backup-only share and account.
+- **Media VM (VM 205)** gets the same datasets through Proxmox **virtiofs** directory mappings (`/etc/pve/mapping/directory.cfg`), so containers read and write ZFS directly without going through SMB.
+- **Ownership:** uid 1000 inside the unprivileged NAS container is uid **101000** on the host. The files are owned by 101000, so the Media VM's containers run as `PUID/PGID=101000` to match.
 
-```
-update-grub
-reboot
-```
+## Proxmox host notes
 
-Now check to make sure everything is enabled.
-
-```
-dmesg | grep -e DMAR -e IOMMU
-dmesg | grep 'remapping'
-```
-
-If a message similar to the one below appears, everything was done correctly. Note that the exact message may vary depending on your system configuration.
-
-```
-AMD-Vi: Interrupt remapping enabled
-```
-
-Now PCI-Passthrough is enabled and ready for future VMs
-
-## Create ZFS Pools
-
-We will create the main ZFS Pool to serve as the NAS for home lab applications.
-
-First, in the _Node > Disk_ section we must wipe all disks that will be part of the ZFS Pool.
-
-After that, we must go to _Disks > ZFS > Create: ZFS_. This will pop up the screen to create a ZFS pool.
-
-From this screen, select all drives that will be part of the pool, name it and select your RAID level.
-![](https://github.com/mateuspim/homelab/blob/main/storage/assets/proxmox_create_zfs.png?raw=true)
-
-#### Some ZFS Commands
-
-The command below lists all ZFS availables on your system
-
-```
-zpool list
-```
-
-However, this command shows your pools with correct available storage left
-
-```
-zfs list
-```
-
-## Creating LXC containers
-
-First, we are going to create a LXC to host our mount points from the ZFS pool and share them via SMB. To do so, we must download an CT template so go to _Node > local (node) > CT Template_ and click on _Templates_ this will pop up a screen with various LXC conateiners to choose from, for now I'll pick the Ubuntu 24-10.
-
-Now click on _Create CT_ button on top of the page. Configure the new LXC Container and create it
-
-### Mount Points
-
-Before starting it for the first time, first we must add our data volumes to the LXC Containers by going on _Node > LC container > Resources_ then press _Add_ and select _Mount Point_. In here, I'll create two mount points:
-
-- Media: which will take as much space as possible from the pool
-- Docker: for docker configurations files
-
-### SMB Shares
-
-Once inside don't forget to run first the command `sudo apt update && sudo apt upgrade -y` to upgrade your system.
-
-Now for the SMB shares
-
-1. Create an user using `adduser pym && adduser pym sudo `
-2. Set permissions of mount points
-
-```
-sudo chown -R pym:pym /data
-sudo chown -R pym:pym /docker
-```
-
-3. Install Samba
-
-```
-sudo apt install samba
-```
-
-4. Back up default Samba configuration
-
-```
-cd /etc/samba
-sudo mv smb.conf smb.conf.old
-```
-
-5. Edit the Samba configuration file
-
-```
-sudo nano smb.conf
-```
-
-My Samba configuration file
-
-```
-[global]
-   # General Samba settings
-   server string = Media  # Description of the server
-   workgroup = WORKGROUP  # Workgroup name for Windows compatibility
-   security = user        # Authentication mode
-   map to guest = Bad User  # Map unknown users to guest
-   name resolve order = bcast host  # Name resolution order
-   hosts allow = 192.168.50.0/24  # Allow access from this subnet
-   hosts deny = 0.0.0.0/0         # Deny access from all other addresses
-
-[data]
-   # Configuration for the "data" share
-   path = /data  # Path to the shared directory
-   force user = pym  # Force all file operations to use this user
-   force group = pym  # Force all file operations to use this group
-   create mask = 0774  # Permissions for newly created files
-   force create mode = 0774  # Enforce specific file permissions
-   directory mask = 0775  # Permissions for newly created directories
-   force directory mode = 0775  # Enforce specific directory permissions
-   browseable = yes  # Make the share visible in network browsers
-   writable = yes  # Allow write access
-   read only = no  # Do not restrict to read-only
-   guest ok = no  # Do not allow guest access
-
-[docker]
-   # Configuration for the "docker" share
-   path = /docker  # Path to the shared directory
-   force user = pym  # Force all file operations to use this user
-   force group = pym  # Force all file operations to use this group
-   create mask = 0774  # Permissions for newly created files
-   force create mode = 0774  # Enforce specific file permissions
-   directory mask = 0775  # Permissions for newly created directories
-   force directory mode = 0775  # Enforce specific directory permissions
-   browseable = yes  # Make the share visible in network browsers
-   writable = yes  # Allow write access
-   read only = no  # Do not restrict to read-only
-   guest ok = no  # Do not allow guest access
-```
-
-6. Add user to smb
-
-```
-sudo smbpasswd -a pym
-```
-
-7. Set services to auto start on reboot
-
-```
-sudo systemctl enable smbd
-8. Allow Samba on the firewall to ensure proper communication between devices on the network. This step is necessary because firewalls can block Samba traffic, preventing file sharing and discovery from functioning correctly.
-sudo systemctl restart smbd
-sudo systemctl restart nmbd
-```
-
-8. Allow samba on firewall if you run into any issues.
-
-```
-sudo ufw allow Samba
-sudo ufw status
-```
-
-9. [Optional] Install wsdd for Windows discovery
-
-`wsdd` (Web Services Dynamic Discovery) allows Samba shares to be discovered by Windows machines on the network, making it easier to access shared resources without manually entering network paths.
-
-```
-sudo apt install wsdd
-```
+- No-subscription repository enabled. Enterprise repos disabled.
+- CPU governor `powersave` with EPP `balance_performance` (amd-pstate-epp). It idles cool and still boosts under load.
+- `vm.swappiness = 10`.
+- Host firewall on, inbound DROP, with explicit LAN rules per guest.
