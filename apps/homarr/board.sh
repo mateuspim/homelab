@@ -37,8 +37,7 @@ TILES=(
   "sec-infra|Proxmox|https://192.168.50.200:8006||proxmox|Proxmox VE host"
   "sec-infra|Gitea|https://git.example.com|http://192.168.50.21:3000/api/healthz|gitea|Git repos"
   "sec-infra|Vaultwarden|https://vaultwarden.example.com||vaultwarden|Passwords"
-  # Cloudflare temp-whitelist UI on CT 100. URL holds the service token (file written by the cloudflared session).
-  # No ping: CT 100 allows :8080 only from odin (.150).
+  # Temp-whitelist UI on CT 100. Its URL is a secret, read at run time from a local file (not in the repo). No ping.
   "sec-infra|Whitelist IP|@file:/opt/stacks/homarr/.whitelist-url||cloudflare|Temporarily allow an IP through Cloudflare Access"
   "sec-downloads|Sonarr|http://192.168.50.220:8989|http://192.168.50.220:8989/ping|sonarr|TV shows"
   "sec-downloads|Radarr|http://192.168.50.220:7878|http://192.168.50.220:7878/ping|radarr|Movies"
