@@ -1,5 +1,5 @@
 [Unit]
-Description=Disable deepest CPU idle state (C2/CC6) - workaround for Ryzen idle freezes on old AGESA
+Description=Disable deepest CPU idle state (C2/CC6) - workaround for Ryzen idle freezes
 After=multi-user.target
 
 [Service]

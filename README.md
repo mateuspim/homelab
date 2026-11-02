@@ -137,7 +137,6 @@ Media in `zeus` is not backed up on purpose: it can be downloaded again. More in
 - [x] Replace the single media VM with per-role LXCs
 - [ ] Nightly encrypted replica of `apollo/vault` (photos, cloud, personal files) to `poseidon`, then off-site
 - [ ] Hardware transcoding for Jellyfin: move the 5700G (VA-API) into the homelab, which is one `dev0: /dev/dri/renderD128` line on CT 222
-- [ ] BIOS update on the homelab board (the 2020 firmware is the main suspect for occasional idle freezes, see [host](host/))
 - [ ] Mirror the data pools. Each pool is one disk, so a dead disk means restoring from backup
 - [ ] Comic and book downloaders (the readers are already running)
 - [ ] More RAM and an NVMe for the lab

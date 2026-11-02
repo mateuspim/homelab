@@ -36,7 +36,7 @@ Together with qBittorrent's file-name blocklist ([arr](../arr/)) and Nextcloud's
 
 ## Stability workarounds
 
-The host had been freezing hard every few weeks: the journal just stops, with no panic and no shutdown. The suspect is the 2020 BIOS (old AGESA) with a Ryzen 5000 CPU, which is known for idle freezes on Linux (unverified as the cause). Until the board gets a BIOS update and *Power Supply Idle Control = Typical Current Idle*:
+The host had been freezing hard every few weeks: the journal just stops, with no panic and no shutdown. Ryzen 5000 CPUs are known for idle freezes on Linux, so for now:
 
 - [`disable-cc6.service`](disable-cc6.service) turns off the deepest CPU idle state (C2, i.e. CC6) on every thread at boot. It costs a few watts at idle.
 - [`90-hang-reboot.conf`](90-hang-reboot.conf) (`/etc/sysctl.d/`): a detected soft or hard lockup panics, and the box reboots after 10 s instead of sitting dead until someone notices. The guests then wait for `homelab-unlock`.
