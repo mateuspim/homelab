@@ -55,9 +55,6 @@ flowchart LR
 
 All guests are **unprivileged** LXCs, so uid 1000 inside any of them is uid **101000** on the host. The datasets are owned by `101000:101000`, every container runs as uid 1000 (`PUID=1000`, or `user: 1000:1000`), and Samba forces user `pym` (1000). A file written over SMB, by an arr app or by Immich ends up with the same owner everywhere.
 
-## Proxmox host notes
+## Host
 
-- No-subscription repository enabled; enterprise repos disabled.
-- CPU governor `powersave` with EPP `balance_performance` (amd-pstate-epp). It idles cool and still boosts under load.
-- `vm.swappiness = 10`.
-- Host firewall on, inbound DROP, with explicit LAN rules per guest.
+Host tuning, the unlock flow and the firewall are on the [node page](../pve/).

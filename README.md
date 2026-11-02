@@ -91,19 +91,19 @@ Every guest is an **unprivileged LXC**. Storage reaches them as plain bind mount
 
 | Guest | Service | Role |
 | --- | --- | --- |
-| CT&nbsp;100 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/cloudflare.png"> cloudflared | Cloudflare Tunnel for the few public endpoints, all behind Cloudflare Access, plus a small service that temporarily whitelists an IP. No ports are open on the router |
-| CT&nbsp;101 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/tailscale.png"> Tailscale | Subnet router and exit node: the whole LAN is reachable from my devices anywhere, and I can route traffic home on untrusted Wi-Fi |
-| CT&nbsp;121 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/gitea.png"> Gitea | Private git, plus a Gitea Actions runner for CI. Nightly `gitea dump` |
-| CT&nbsp;201 | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/vaultwarden.png"> Vaultwarden | Password manager (Bitwarden-compatible) |
-| CT&nbsp;202 | <img width="16" src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/samba-server.png"> NAS | Samba shares (`data`, `stuff`, `backup`, `roms`) and the off-site backup jobs |
+| [CT&nbsp;100](pve/ct-100-cloudflared/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/cloudflare.png"> cloudflared | Cloudflare Tunnel for the few public endpoints, all behind Cloudflare Access, plus a small service that temporarily whitelists an IP. No ports are open on the router |
+| [CT&nbsp;101](pve/ct-101-tailscale/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/tailscale.png"> Tailscale | Subnet router and exit node: the whole LAN is reachable from my devices anywhere, and I can route traffic home on untrusted Wi-Fi |
+| [CT&nbsp;121](pve/ct-121-gitea/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/gitea.png"> Gitea | Private git, plus a Gitea Actions runner for CI. Nightly `gitea dump` |
+| [CT&nbsp;201](pve/ct-201-vaultwarden/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/vaultwarden.png"> Vaultwarden | Password manager (Bitwarden-compatible) |
+| [CT&nbsp;202](pve/ct-202-nas/) | <img width="16" src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/samba-server.png"> NAS | Samba shares (`data`, `stuff`, `backup`, `roms`) and the off-site backup jobs |
 
 ### Media and apps
 
 | Guest | What runs there | Details |
 | --- | --- | --- |
-| CT&nbsp;220&nbsp;arr | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/sonarr.png"> Sonarr, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/radarr.png"> Radarr, Lidarr, Bazarr, Prowlarr, FlareSolverr, Seerr, Recyclarr, and qBittorrent inside **gluetun** (ProtonVPN with port forwarding) | [`arr/`](pve/ct-220-arr/) |
-| CT&nbsp;222&nbsp;jellyfin | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/jellyfin.png"> Jellyfin, installed natively from the official repo (no Docker), read-only media | [`jellyfin/`](pve/ct-222-jellyfin/) |
-| CT&nbsp;225&nbsp;apps | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, ClamAV | [`apps/`](pve/ct-225-apps/) |
+| [CT&nbsp;220&nbsp;arr](pve/ct-220-arr/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/sonarr.png"> Sonarr, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/radarr.png"> Radarr, Lidarr, Bazarr, Prowlarr, FlareSolverr, Seerr, Recyclarr, and qBittorrent inside **gluetun** (ProtonVPN with port forwarding) | [`arr/`](pve/ct-220-arr/) |
+| [CT&nbsp;222&nbsp;jellyfin](pve/ct-222-jellyfin/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/jellyfin.png"> Jellyfin, installed natively from the official repo (no Docker), read-only media | [`jellyfin/`](pve/ct-222-jellyfin/) |
+| [CT&nbsp;225&nbsp;apps](pve/ct-225-apps/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, ClamAV | [`apps/`](pve/ct-225-apps/) |
 
 ### lab
 

@@ -25,7 +25,7 @@ Both jobs run on the **NAS container (CT 202)** as systemd timers, using [rclone
 | Timer | Source | What it does |
 | --- | --- | --- |
 | `vzdump-offsite.timer` (Sun 09:00) | `/mnt/backup/dump` | Uploads any `vzdump-*` archive from the last 8 days |
-| `roms-offsite.timer` (Sun 12:00) | `/mnt/roms` (~620 GB) | Incremental upload of new ROMs |
+| `roms-offsite.timer` (Sun 12:00) | `/mnt/roms` (~566 GB) | Incremental upload of new ROMs |
 
 Rules I stick to:
 

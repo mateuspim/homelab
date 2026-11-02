@@ -1,19 +1,33 @@
-# pve: the homelab node
+# <img width="28" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/proxmox.png" align="top"> pve: the homelab node
 
-Proxmox VE 9.1 on a Ryzen 5 5600X with 32 GB of RAM (hardware in the [main README](../README.md#hardware)). Every guest is an unprivileged LXC; storage reaches them as bind mounts of encrypted ZFS datasets ([storage](../docs/storage.md)).
+The machine that runs the house: media, photos, files, passwords and git. Every guest is an unprivileged LXC, and the data reaches them as bind mounts of encrypted ZFS datasets ([storage](../docs/storage.md)).
+
+| | |
+| --- | --- |
+| **Proxmox** | VE 9.1, no-subscription repo |
+| **CPU** | AMD Ryzen 5 5600X (6C/12T) |
+| **RAM** | 32 GB DDR4 |
+| **Boot / guests** | 240 GB SATA SSD (`local-lvm`) |
+| **Data** | 4 ZFS pools, 3 of them encrypted: `zeus`, `apollo`, `poseidon`, `dionysus` |
+| **Address** | 192.168.50.200 |
+| **After a reboot** | `ssh -t homelab homelab-unlock`: one passphrase, then the data guests start |
+
+Full hardware list in the [main README](../README.md#hardware).
 
 ## Guests
 
-| CT | Name | What it does |
-| --- | --- | --- |
-| [100](ct-100-cloudflared/) | cloudflared | Cloudflare Tunnel, behind Access, plus the temporary IP whitelist |
-| [101](ct-101-tailscale/) | tailscale | Subnet router and exit node |
-| [121](ct-121-gitea/) | gitea | Private git and an Actions runner |
-| [201](ct-201-vaultwarden/) | vaultwarden | Password manager |
-| [202](ct-202-nas/) | nas | Samba shares and the off-site backup timers |
-| [220](ct-220-arr/) | arr | Downloads and library management behind a VPN |
-| [222](ct-222-jellyfin/) | jellyfin | Native Jellyfin |
-| [225](ct-225-apps/) | apps | Immich, Nextcloud, RomM, Homarr, readers and more |
+| CT | Name | IP | What it does | Starts |
+| --- | --- | --- | --- | --- |
+| [100](ct-100-cloudflared/) | cloudflared | .231 | Cloudflare Tunnel, behind Access, plus the temporary IP whitelist | boot |
+| [101](ct-101-tailscale/) | tailscale | .101 | Subnet router and exit node | boot |
+| [121](ct-121-gitea/) | gitea | .21 | Private git and an Actions runner | boot |
+| [201](ct-201-vaultwarden/) | vaultwarden | .201 | Password manager | boot |
+| [202](ct-202-nas/) | nas | .202 | Samba shares and the off-site backup timers | unlock |
+| [220](ct-220-arr/) | arr | .220 | Downloads and library management behind a VPN | unlock |
+| [222](ct-222-jellyfin/) | jellyfin | .222 | Native Jellyfin | unlock |
+| [225](ct-225-apps/) | apps | .225 | Immich, Nextcloud, RomM, Homarr, readers and more | unlock |
+
+*Starts:* "boot" guests come up with the host. "unlock" guests need the encrypted data, so [`homelab-unlock`](host/homelab-unlock) starts them once the passphrase is in.
 
 Everything below runs on the host itself, outside any guest. The scripts and units are in [`host/`](host/).
 
@@ -60,4 +74,11 @@ The onboard Realtek NIC (r8169) also logs an occasional `NETDEV WATCHDOG` transm
 
 ## Firewall
 
-The Proxmox firewall is on for the host and every guest: inbound DROP, then explicit LAN rules per port in `/etc/pve/firewall/<vmid>.fw`. Nothing is open to the internet; the public endpoints go through the Cloudflare Tunnel, behind Access.
+The Proxmox firewall is on for the host and every guest: inbound DROP, then explicit LAN rules per port in `/etc/pve/firewall/<vmid>.fw`. Each guest page lists its open ports. Nothing is open to the internet; the public endpoints go through the [Cloudflare Tunnel](ct-100-cloudflared/), behind Access.
+
+## Host tuning
+
+- No-subscription repository enabled; enterprise repos disabled.
+- CPU governor `powersave` with EPP `balance_performance` (amd-pstate-epp). It idles cool and still boosts under load.
+- `vm.swappiness = 10`.
+- Every guest and the host resolve through Cloudflare DNS (`1.1.1.1`). The router serves no local names anyway.
