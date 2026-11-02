@@ -42,8 +42,9 @@ The readers and File Browser only ever see the library read-only, so nothing her
 - **Immich** follows the official compose for its release, with the database images pinned by digest. Server and ML run as `user: 1000:1000`, so photos land owned by `pym`. Machine learning (faces, smart search) runs on the CPU. The storage template files originals by date: `library/<user>/YYYY/MM/DD/`.
 - **Nextcloud** was installed with `occ maintenance:install` from [`install.sh`](nextcloud/install.sh), not the web installer: APCu local cache, Redis for distributed cache and locking, cron background jobs, a maintenance window at 03:00.
 - **Nextcloud antivirus.** The *Antivirus for files* app runs in daemon mode against the `clamav` container, which is reachable only on Nextcloud's Docker network. An infected upload is refused before it's stored (tested with EICAR). The background scan only logs.
-- **RomM** runs as uid 1000 (the stock image runs as root) and mounts the ROMs read-only, so uploads and deletes from the UI are off. Metadata comes from Hasheous and libretro, which need no API keys.
+- **RomM** runs as uid 1000 (the stock image runs as root) and mounts the ROMs read-only, so uploads and deletes from the UI are off. Metadata comes from Hasheous and libretro, which need no API keys. Its [`config.yml`](romm/config.yml) keeps non-games out of the library: BIOS dumps, console keys (which must never be downloadable from RomM), and `.txt`/`.nfo` notes. Scan workers are capped at 2, because 4 caused bursts of DNS failures for cover art.
 - **Homarr** is declared as code: [`board.sh`](homarr/board.sh) upserts every app and PUTs the whole board with stable ids, so re-running it converges. The Docker socket is deliberately **not** mounted, because it would be root over this CT's Docker. Public links in the published copy use `example.com`.
+- **File Browser** sees `/data/media` and `/roms` read-only, and a rule hides the console keys folder, so it's never shown or indexed.
 - **Komga and Kavita** read `/data/media/{comics,books}`, which the arr side will fill once a comic/book downloader is picked.
 
 ## Running an app

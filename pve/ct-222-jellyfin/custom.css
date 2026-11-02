@@ -1,0 +1,10 @@
+/* Jellyfish theme (n00bcodr/Jellyfish) — midnight palette. */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/theme.css");
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/colors/midnight.css");
+/* Jellyfin Enhanced panels */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/jellyfin-enhanced.css");
+/* Lite mode: less blur/shadows/animations (perf) */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish/lite.css");
+/* Polish: lift the Media Bar hero (logo, info, Play, dots) clear of the first home row.
+   Media Bar 3.0.2 reserves only max(2.5vh,1.75rem) above the rows; Jellyfish needs more. */
+#slides-container { --slideshow-dots-reserve: max(8vh, 5rem); }

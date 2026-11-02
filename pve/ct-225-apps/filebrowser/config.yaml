@@ -12,10 +12,14 @@ server:
       name: media
       config:
         defaultEnabled: true
+        readOnly: true
     - path: /roms            # dionysus roms, mounted ro
       name: roms
       config:
         defaultEnabled: true
+        readOnly: true
+        rules:
+          - folderPath: "/.keys"   # Switch keys: sensitive, never shown or indexed
 auth:
   adminUsername: pym
   methods:

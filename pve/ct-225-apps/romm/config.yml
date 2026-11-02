@@ -1,0 +1,12 @@
+# romm config (deployed to /opt/appdata/romm/config/config.yml, mounted at /romm/config).
+# Docs: https://docs.romm.app/latest/Getting-Started/Configuration-File/
+exclude:
+  platforms:
+    - .ps2bios   # PS2 BIOS dumps, not games
+    - .keys      # Switch keys: sensitive, must not be downloadable from romm
+  roms:
+    single_file:
+      # ES-DE's per-system systeminfo.txt, "Vimm's Lair.txt" download notes, etc. are not games.
+      extensions:
+        - txt
+        - nfo

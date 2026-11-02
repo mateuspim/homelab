@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # wire.sh — connect the arr stack on CT 220 through each app's API. Safe to re-run: skips what exists.
 # Run on CT 220 as pym: bash /opt/stacks/arr/wire.sh   (needs curl + jq)
+# Indexers, Prowlarr's own download client and app sync routing live in indexers.sh (run it after this).
 set -euo pipefail
 LAN=192.168.50.220
 key() { grep -oP '(?<=<ApiKey>)[^<]+' "/opt/appdata/$1/config.xml"; }
@@ -22,6 +23,7 @@ ok "auth bypass for 172.18.0.0/16, automatic torrent management, save path /data
 excl='*.exe *.scr *.com *.bat *.cmd *.msi *.lnk *.vbs *.vbe *.js *.jse *.wsf *.wsh *.ps1 *.pif *.cpl *.jar *.apk *.dll *.iso.exe *.zipx *.arj *.lzh *.ace'
 qb app/setPreferences --data-urlencode "json=$(jq -nc --arg l "${excl// /$'\n'}" '{excluded_file_names_enabled:true, excluded_file_names:$l}')"
 ok "excluded file names: executables/scripts never downloaded"
+bash "$(dirname "${BASH_SOURCE[0]}")/qbit-tune.sh"
 cats=$(qb torrents/categories)
 for c in movies tv anime music books comics; do
   ep=createCategory; jq -e --arg c "$c" 'has($c)' <<<"$cats" >/dev/null && ep=editCategory

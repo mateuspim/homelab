@@ -23,7 +23,7 @@ services:
       IGDB_CLIENT_ID: ${IGDB_CLIENT_ID:-}
       IGDB_CLIENT_SECRET: ${IGDB_CLIENT_SECRET:-}
       HASHEOUS_API_ENABLED: "true"
-      SCAN_WORKERS: "4"
+      SCAN_WORKERS: "2"   # 4 caused bursts of DNS "Try again" failures for IGDB images (2026-11-02)
       WEB_SERVER_CONCURRENCY: "4"
     volumes:
       - /roms:/romm/library/roms:ro

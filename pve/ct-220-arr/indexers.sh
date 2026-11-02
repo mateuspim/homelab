@@ -42,26 +42,30 @@ done
 
 echo "== indexers"
 # Trusted, moderated public sources only (user's call): no open-upload sites (TPB, LimeTorrents, KAT clones,
-# TorrentDownloads) and no meta-aggregators that mirror them (Knaben, uindex). 1337x is out: Prowlarr can only filter
-# it by ONE uploader name, not "VIP/trusted". No Brazilian tracker in Prowlarr is public (all private/semi-private).
+# TorrentDownloads) and no meta-aggregators that mirror them (Knaben, uindex). No Brazilian tracker in Prowlarr is
+# public (all private/semi-private).
+# 1337x: added back on the user's call (2026-11-01: Internet Archive alone finds almost no real movie releases).
+# It can't be limited to VIP/trusted uploaders, so it relies on the recyclarr filters (No-RlsGroup/Obfuscated/Retags/LQ
+# at -10000), qBit excluded_file_names (executables) and a 5-seeder minimum against fresh fakes.
 # definition | priority (lower wins) | apps it syncs to. Cloudflare sites (definition has an info_flaresolverr note) get tag flaresolverr.
 LIST="
 nyaasi|10|tv,movies
 SubsPlease|15|tv
 eztv|20|tv
-internetarchive|40|movies,music
+1337x|25|tv,movies,music
 "
 # YTS is out too: TRaSH lists YTS/YIFY as LQ, and the radarr profile scores LQ -10000, so every result would be rejected.
-DROP="yts thepiratebay limetorrents torrentdownloads Knaben uindex 1337x kickasstorrents-to kickasstorrents-ws TorrentsCSV"
+DROP="internetarchive yts thepiratebay limetorrents torrentdownloads Knaben uindex kickasstorrents-to kickasstorrents-ws TorrentsCSV"
 # Per-definition settings: Nyaa trusted uploads only, anime category only, Sonarr-style season tags.
-# Internet Archive sorted by downloads: the default (newest) makes its test take ~90 s and time out.
-declare -A SET=([nyaasi]='{"filter-id":2,"cat-id":1,"sonarr_compatibility":true}' [internetarchive]='{"sort":0}')
+# Internet Archive removed: poor release coverage and trailer-only movie matches.
+declare -A SET=([nyaasi]='{"filter-id":2,"cat-id":1,"sonarr_compatibility":true}'
+                [1337x]='{"torrentBaseSettings.appMinimumSeeders":5}')
 schema=$(api prowlarr GET /indexer/schema)
 existing=$(api prowlarr GET /indexer)
 cf=$(tagid flaresolverr)
-for def in $DROP; do # earlier, untrusted picks: delete; the next app sync removes them from sonarr/radarr/lidarr
+for def in $DROP; do # removed sources: the next app sync removes them from sonarr/radarr/lidarr
   for id in $(jq --arg d "$def" '.[] | select(.definitionName == $d) | .id' <<<"$existing"); do
-    api prowlarr DELETE "/indexer/$id" >/dev/null; ok "$def removed (untrusted)"
+    api prowlarr DELETE "/indexer/$id" >/dev/null; ok "$def removed (excluded source)"
   done
 done
 while IFS='|' read -r def prio apps; do

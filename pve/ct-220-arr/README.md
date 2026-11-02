@@ -34,8 +34,9 @@ Finds, downloads and imports media. Everything that talks to torrent swarms or i
 | [`.env.example`](.env.example) | The only secret: the WireGuard key from a Proton config made for this box alone |
 | [`qBittorrent.conf.seed`](qBittorrent.conf.seed) | Copied in before the first start: save path, plus the localhost auth bypass gluetun needs to set the port |
 | [`wire.sh`](wire.sh) | Connects everything through the apps' APIs: qBittorrent categories, root folders, download clients, Prowlarr sync, FlareSolverr, Bazarr, Seerr. Safe to re-run |
-| [`indexers.sh`](indexers.sh) | A short list of moderated public indexers in Prowlarr. It also removes untrusted ones |
-| [`recyclarr/`](recyclarr/) | `WEB-1080p` for shows, `HD Bluray + WEB` for movies, plus my extra rules |
+| [`indexers.sh`](indexers.sh) | The public indexers in Prowlarr, with priorities and per-indexer filters. It also removes the ones I decided against |
+| [`qbit-tune.sh`](qbit-tune.sh) | qBittorrent queue and seeding limits (run by `wire.sh`). It backs up only the settings it changes |
+| [`recyclarr/`](recyclarr/) | `WEB-1080p` for shows; `HD Bluray + WEB` (default) and `UHD Bluray + WEB` for movies; plus my extra rules |
 
 ## How it works
 
@@ -50,7 +51,9 @@ The rules I settled on: nothing unplayable, no fakes, no malware, HDR10/HDR10+ f
 
 - **Recyclarr** syncs the TRaSH profiles daily. On top of the templates, Dolby Vision (every variant), No-RlsGroup, Obfuscated and Retags are scored −10000, next to the default LQ, BR-DISK, upscaled, AV1, x265 (HD) and 3D rules. CAM/TS/screener qualities aren't allowed at all.
 - **qBittorrent never downloads** executables, scripts or disk images (`*.exe`, `*.scr`, `*.lnk`, `*.msi`, `*.ps1`, `*.iso`, …, 30 patterns), the classic "movie.mkv.exe" trick. Anything that does get through is caught by the nightly [ClamAV scan](../README.md#antivirus-av-scan).
-- **Indexers** are a short list of moderated public sources. Open-upload sites and the aggregators that mirror them are left out; the reasons are in the comments of [`indexers.sh`](indexers.sh).
+- **4K is opt-in.** Movies default to 1080p. `UHD Bluray + WEB` (HDR10/HDR10+, still no Dolby Vision) is picked per request in Seerr, for titles worth it on the 4K TV.
+- **Indexers:** Nyaa (trusted uploads only, anime category), SubsPlease and EZTV, plus 1337x. 1337x is open-upload and can't be limited to trusted uploaders, so it sits last and leans on everything else: the release filters above, the file-name blocklist and a 5-seeder minimum against fresh fakes. Other open-upload sites and the aggregators that mirror them are left out; the reasons are in the comments of [`indexers.sh`](indexers.sh).
+- **Seeding:** download first. Up to 20 active downloads and 3 uploads, slow torrents don't count against the queue, and seeding stops at ratio 1 or after 24 h ([`qbit-tune.sh`](qbit-tune.sh)). That's fine for public trackers; a private tracker would need its own limits.
 
 ## Running it
 

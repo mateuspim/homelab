@@ -14,7 +14,11 @@ radarr:
       type: movie
 
     quality_profiles:
-      - trash_id: d1d67249d3890e49bc12e275d989a7e9  # HD Bluray + WEB
+      - trash_id: d1d67249d3890e49bc12e275d989a7e9  # HD Bluray + WEB (default, 1080p)
+        reset_unmatched_scores:
+          enabled: true
+      # 4K for the Samsung Neo QLED (HDR10/HDR10+, no DV). Picked per request in Seerr; 1080p stays default.
+      - trash_id: 64fb5f9858489bdac2af690e27c8f42f  # UHD Bluray + WEB
         reset_unmatched_scores:
           enabled: true
 
@@ -28,6 +32,8 @@ radarr:
           - f700d29429c023a5734505e77daeaea7  # DV (Disk)
         assign_scores_to:
           - trash_id: d1d67249d3890e49bc12e275d989a7e9  # HD Bluray + WEB
+            score: -10000
+          - trash_id: 64fb5f9858489bdac2af690e27c8f42f  # UHD Bluray + WEB
             score: -10000
 
     custom_format_groups:
@@ -46,6 +52,9 @@ radarr:
       ## https://recyclarr.dev/guide/cf-groups/
       ################################################################################
       add:
+        # UHD profile: Golden Rule UHD + HDR10+ boost (TV supports HDR10+). DV is blocked via custom_formats above.
+        - trash_id: ff204bbcecdd487d1cefcefdbf0c278d  # [Optional] Golden Rule UHD
+        - trash_id: b29413a7487478fe98228ce79e5689e4  # [HDR Formats] HDR10+ Boost
         - trash_id: f8bf8eab4617f12dfdbd16303d8da245  # [Optional] Golden Rule HD
           # Mutually exclusive: enable only one of the following.
           exclude:

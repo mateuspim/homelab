@@ -35,21 +35,60 @@ usermod -aG pym jellyfin                    # group read on the media
 - The mount is **read-only**: the [arr stack](../ct-220-arr/) owns the library, and Jellyfin only reads it. Metadata savers are off (`SaveLocalMetadata=false`), so nothing tries to write `.nfo` files or artwork there. Everything Jellyfin knows lives in `/var/lib/jellyfin` on the CT's rootfs, which is in the weekly vzdump.
 - To delete something, use Radarr or Sonarr, not Jellyfin. The files are hardlinked to the torrents, so a delete in Jellyfin wouldn't free any space anyway.
 
-## Look and plugins
+## Theme
 
-The theme is [Jellyfish](https://github.com/n00bcodr/Jellyfish) (midnight palette), set in *Dashboard → Branding → Custom CSS*, plus a lighter CSS layer that turns down blur and animations on slow clients.
+[Jellyfish](https://github.com/n00bcodr/Jellyfish) with the **midnight** palette, pasted into *Dashboard → General → Custom CSS*. The full sheet is in [`custom.css`](custom.css).
+
+| Layer | Why |
+| --- | --- |
+| `theme.css` | The base. Of the themes I tried, Jellyfish was the only one that explicitly supports Jellyfin 12's new Modern (React/MUI) layout, and it's actively maintained |
+| `colors/midnight.css` | Royal-blue accent on near-black |
+| `jellyfin-enhanced.css` | Styles the Jellyfin Enhanced panels to match |
+| `lite.css` | Less blur, fewer shadows and entrance animations. The browser felt laggy while the server sat idle |
+| `#slides-container` override | Lifts the Media Bar hero (logo, Play, dots) clear of the first home row. With Jellyfish's header, the Play button landed on the "My Media" title |
+
+Rejected: **ElegantFin** (needs a "temporary" companion sheet on the Modern layout), **Finimalism** (targets 10.11), **Ultrachromic** (Modern layout unverified). Jellyfish's `slideshow-compact-mobile.css` was tried and removed, because it made the first row overlap the hero.
+
+## Plugins
+
+Every plugin's target ABI was checked in its `meta.json`. 12.x is a new major, and an old plugin just fails to load.
+
+| Plugin | Version | What it's for | Settings changed |
+| --- | --- | --- | --- |
+| [Intro Skipper](https://github.com/intro-skipper/intro-skipper) | 12.0.6 | Detects intros, credits, recaps and previews | Auto-skip intro and credits on |
+| [Home Screen Sections](https://github.com/IAmParadox27/jellyfin-plugin-home-sections) | 3.0.4 | Netflix-style home rows | defaults |
+| [Media Bar](https://github.com/IAmParadox27/jellyfin-plugin-media-bar) | 3.0.2 | Featured carousel on the home page | Trailers and slide animation **off**: the background YouTube trailer and the pan/zoom were the hero lag |
+| [Jellyfin Enhanced](https://github.com/n00bcodr/Jellyfin-Enhanced) | 12.14 | Quality-of-life suite | Seerr search and requests, links to Sonarr/Radarr/Bazarr, audio-language flags on posters. Its own auto-skip stays off (Intro Skipper does that), analytics off |
+| [InPlayerEpisodePreview](https://github.com/Namo2/InPlayerEpisodePreview) | 2.5.0 | Episode list inside the player | defaults |
+| [TMDb Box Sets](https://github.com/jellyfin/jellyfin-plugin-tmdbboxsets) | 15 | Automatic movie collections | defaults |
+| [Fanart](https://github.com/jellyfin/jellyfin-plugin-fanart) | 15 | Logos, clearart, extra backdrops | defaults |
+| [AniList](https://github.com/jellyfin/jellyfin-plugin-anilist) | 15 | Anime metadata | defaults |
+| [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation), [Plugin Pages](https://github.com/IAmParadox27/jellyfin-plugin-pages) | 3.0.3 | Dependencies of the plugins above | defaults |
+
+Plugin repositories added next to the stable one:
+
+```
+https://intro-skipper.org/manifest.json
+https://www.iamparadox.dev/jellyfin/plugins/manifest.json
+https://raw.githubusercontent.com/n00bcodr/jellyfin-plugins/main/manifest.json
+https://raw.githubusercontent.com/Namo2/InPlayerEpisodePreview/master/manifest.json
+```
+
+The Intro Skipper manifest only answers requests from a Jellyfin server, so opening it in a browser looks broken. That's expected.
+
+Deliberately skipped:
 
 | Plugin | Why |
 | --- | --- |
-| Intro Skipper | Skip intros and credits |
-| Home Screen Sections, Media Bar | A better home page. Trailers in the hero bar are off; the background video was the main cause of lag |
-| Jellyfin Enhanced | Quality-of-life tweaks, Seerr requests from inside Jellyfin, links to Sonarr, Radarr and Bazarr |
-| TMDb Box Sets, Fanart, AniList | Collections and better artwork and anime metadata |
-| File Transformation, Plugin Pages | Dependencies of the above |
+| Playback Reporting | Jellystat in [CT 225](../ct-225-apps/) covers it |
+| Open Subtitles, Subtitle Extract | Bazarr in [CT 220](../ct-220-arr/) does subtitles |
+| Jellyscrub | Trickplay is native now, and its last ABI is 10.10 |
+| Chapter Segments Provider | Overlaps Intro Skipper |
+| Skin Manager | Abandoned (ABI 10.7) |
 
-Deliberately skipped: Playback Reporting (Jellystat in [CT 225](../ct-225-apps/) covers it), subtitle plugins (Bazarr in [CT 220](../ct-220-arr/) does it), Jellyscrub (trickplay is native now).
+## Playback preferences
 
-Plugin repositories have to match Jellyfin's ABI. Check `meta.json` before installing anything, since 12.x is a new major.
+Some releases carry several audio tracks with the "wrong" one flagged as default. Each user has `AudioLanguagePreference=eng` and `PlayDefaultAudioTrack=false`, so the preferred language wins over the file's flag. *Remember audio selections* stays on, so a series already started in another language keeps it until it's switched once in the player.
 
 ## Transcoding
 
