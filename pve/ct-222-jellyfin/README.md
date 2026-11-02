@@ -23,7 +23,7 @@ usermod -aG pym jellyfin                    # group read on the media
 
 - `/zeus/data/media` is bind-mounted **read-only** at `/data/media`. Libraries: Movies, Series, Anime, Music, Books.
 - Metadata savers are off (`SaveLocalMetadata=false`), so Jellyfin never tries to write `.nfo` files or artwork into the read-only mount. Everything stays in `/var/lib/jellyfin`, on the CT's rootfs, which is in the weekly vzdump.
-- The arr stack in [CT 220](../arr/) writes the library, and Jellyfin only reads it.
+- The arr stack in [CT 220](../ct-220-arr/) writes the library, and Jellyfin only reads it.
 
 ## Transcoding
 

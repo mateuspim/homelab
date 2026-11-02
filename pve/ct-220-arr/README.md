@@ -1,6 +1,6 @@
 # arr (CT 220)
 
-Unprivileged Debian 13 LXC, 4 cores, 4 GB RAM, Docker CE. It finds, downloads and imports media. Jellyfin lives next door in [CT 222](../jellyfin/) and only reads the library.
+Unprivileged Debian 13 LXC, 4 cores, 4 GB RAM, Docker CE. It finds, downloads and imports media. Jellyfin lives next door in [CT 222](../ct-222-jellyfin/) and only reads the library.
 
 ## Files
 
@@ -26,7 +26,7 @@ Unprivileged Debian 13 LXC, 4 cores, 4 GB RAM, Docker CE. It finds, downloads an
 Rules I settled on: nothing unplayable, no fakes, no malware, HDR10/HDR10+ fine, **no Dolby Vision**.
 
 - **Recyclarr** syncs the TRaSH profiles daily. On top of the templates, Dolby Vision (every variant), No-RlsGroup, Obfuscated and Retags are scored −10000, next to the default LQ, BR-DISK, upscaled, AV1, x265 (HD) and 3D rules. CAM/TS/screener qualities aren't allowed at all.
-- **qBittorrent never downloads** executables, scripts or disk images (`*.exe`, `*.scr`, `*.lnk`, `*.msi`, `*.ps1`, `*.iso`, …, 30 patterns), the classic "movie.mkv.exe" trick. Anything that does get through is caught by the nightly [ClamAV scan](../host/).
+- **qBittorrent never downloads** executables, scripts or disk images (`*.exe`, `*.scr`, `*.lnk`, `*.msi`, `*.ps1`, `*.iso`, …, 30 patterns), the classic "movie.mkv.exe" trick. Anything that does get through is caught by the nightly [ClamAV scan](../README.md#antivirus-av-scan).
 - **Indexers** are a short list of moderated public sources. Open-upload sites and aggregators that mirror them are deliberately left out (the reasons are in the comments of [`indexers.sh`](indexers.sh)).
 - **Subtitles:** Bazarr fetches Brazilian Portuguese first, then English, from free providers.
 
@@ -40,6 +40,6 @@ docker compose up -d
 bash wire.sh && bash indexers.sh
 ```
 
-Every linuxserver image runs with `PUID=1000 PGID=1000 UMASK=002`. In an unprivileged LXC, uid 1000 is host uid 101000, which owns the datasets (see [storage](../storage/)).
+Every linuxserver image runs with `PUID=1000 PGID=1000 UMASK=002`. In an unprivileged LXC, uid 1000 is host uid 101000, which owns the datasets (see [storage](../../docs/storage.md)).
 
 The LXC needs `nesting=1,keyctl=1` and `/dev/net/tun` passed in (`dev0: /dev/net/tun`). The Docker packages are held (`apt-mark hold`), because a runc or LXC update has broken Docker-in-LXC before. They only get upgraded deliberately, after a vzdump.

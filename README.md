@@ -8,15 +8,17 @@ My self-hosted setup: two Proxmox nodes in a closet. The **homelab** runs media,
 
 ## Navigation
 
-| Folder | What's inside |
+| Path | What's inside |
 | --- | --- |
-| [`arr/`](arr/) | CT 220: the arr stack behind a VPN, download rules, TRaSH quality profiles, API wiring scripts |
-| [`jellyfin/`](jellyfin/) | CT 222: native Jellyfin |
-| [`apps/`](apps/) | CT 225: Immich, Nextcloud, RomM, Jellystat, Homarr, File Browser, Komga, Kavita, ClamAV |
-| [`host/`](host/) | The Proxmox host: one-passphrase unlock, alert mail, antivirus, stability workarounds |
-| [`storage/`](storage/) | Encrypted ZFS pools and how storage reaches the guests |
-| [`backups/`](backups/) | Weekly snapshots and the encrypted off-site copy to Google Drive |
+| [`pve/`](pve/) | The homelab node: host setup (one-passphrase unlock, alert mail, antivirus, stability) and a folder per guest |
+| [`pve/ct-220-arr/`](pve/ct-220-arr/) | The arr stack behind a VPN, download rules, TRaSH quality profiles, API wiring scripts |
+| [`pve/ct-222-jellyfin/`](pve/ct-222-jellyfin/) | Native Jellyfin |
+| [`pve/ct-225-apps/`](pve/ct-225-apps/) | Immich, Nextcloud, RomM, Jellystat, Homarr, File Browser, Komga, Kavita, ClamAV |
 | [`lab/`](lab/) | The second node: agent and dev workspaces |
+| [`docs/storage.md`](docs/storage.md) | Encrypted ZFS pools and how storage reaches the guests |
+| [`docs/backups.md`](docs/backups.md) | Weekly snapshots and the encrypted off-site copy to Google Drive |
+
+The infra guests (cloudflared, Tailscale, Gitea, Vaultwarden, NAS) have their own short pages under [`pve/`](pve/).
 
 ## Architecture
 
@@ -66,7 +68,7 @@ Every guest is an **unprivileged LXC**. Storage reaches them as plain bind mount
 | RAM | 32 GB DDR4 (4×8 GB) |
 | GPU | GeForce GT 610, for console output only |
 | Boot / guests | 240 GB SATA SSD (Proxmox and `local-lvm`) |
-| Data | 4 TB IronWolf, 2 TB Seagate, 1 TB Toshiba, 2 TB WD Purple (one ZFS pool each, see [storage](storage/)) |
+| Data | 4 TB IronWolf, 2 TB Seagate, 1 TB Toshiba, 2 TB WD Purple (one ZFS pool each, see [storage](docs/storage.md)) |
 
 ### lab: Proxmox VE 9.2
 
@@ -99,9 +101,9 @@ Every guest is an **unprivileged LXC**. Storage reaches them as plain bind mount
 
 | Guest | What runs there | Details |
 | --- | --- | --- |
-| CT&nbsp;220&nbsp;arr | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/sonarr.png"> Sonarr, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/radarr.png"> Radarr, Lidarr, Bazarr, Prowlarr, FlareSolverr, Seerr, Recyclarr, and qBittorrent inside **gluetun** (ProtonVPN with port forwarding) | [`arr/`](arr/) |
-| CT&nbsp;222&nbsp;jellyfin | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/jellyfin.png"> Jellyfin, installed natively from the official repo (no Docker), read-only media | [`jellyfin/`](jellyfin/) |
-| CT&nbsp;225&nbsp;apps | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, ClamAV | [`apps/`](apps/) |
+| CT&nbsp;220&nbsp;arr | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/sonarr.png"> Sonarr, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/radarr.png"> Radarr, Lidarr, Bazarr, Prowlarr, FlareSolverr, Seerr, Recyclarr, and qBittorrent inside **gluetun** (ProtonVPN with port forwarding) | [`arr/`](pve/ct-220-arr/) |
+| CT&nbsp;222&nbsp;jellyfin | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/jellyfin.png"> Jellyfin, installed natively from the official repo (no Docker), read-only media | [`jellyfin/`](pve/ct-222-jellyfin/) |
+| CT&nbsp;225&nbsp;apps | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, ClamAV | [`apps/`](pve/ct-225-apps/) |
 
 ### lab
 
@@ -111,13 +113,13 @@ LXC workspaces where coding agents (Claude Code, Codex, opencode) and work dev e
 
 | What | How |
 | --- | --- |
-| Data at rest | `zeus`, `apollo` and `poseidon` are ZFS-encrypted (aes-256-gcm) under **one passphrase**, typed after each boot by [`homelab-unlock`](host/). The guests that need the data stay down until then |
+| Data at rest | `zeus`, `apollo` and `poseidon` are ZFS-encrypted (aes-256-gcm) under **one passphrase**, typed after each boot by [`homelab-unlock`](pve/). The guests that need the data stay down until then |
 | Network | Proxmox firewall per guest: inbound DROP, then a LAN allow-list per port. Public endpoints only through the tunnel, behind Cloudflare Access |
 | Downloads | VPN-only egress with a kill switch, executables and scripts never downloaded, release filters that drop fakes and obfuscated releases |
 | Antivirus | Nextcloud scans every upload (clamd). A nightly ClamAV pass covers anything new in downloads, personal files and the cloud data |
 | Alerts | SMART (nightly short test, monthly long test, temperature), ZFS events, backups and antivirus hits are all mailed through Proxmox notifications with a `[homelab]` subject prefix |
 
-More in [`host/`](host/).
+More in [`host/`](pve/).
 
 ## Backups at a glance
 
@@ -129,7 +131,7 @@ More in [`host/`](host/).
 | Gitea | `gitea dump` inside the CT, kept 7 days | Nightly |
 | lab workspaces | File-level archives to the NAS over SMB | Daily |
 
-Media in `zeus` is not backed up on purpose: it can be downloaded again. More in [`backups/`](backups/).
+Media in `zeus` is not backed up on purpose: it can be downloaded again. More in [`backups/`](docs/backups.md).
 
 ## Roadmap
 

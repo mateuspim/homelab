@@ -13,11 +13,11 @@ Proxmox manages all storage directly with ZFS (TrueNAS was dropped a while ago).
 | `poseidon` | WD Purple | 2 TB | `poseidon/backup`: vzdump archives for both nodes | yes |
 
 - Pool options: `ashift=12`, `compression=lz4`, `atime=off`, `xattr=sa`, `acltype=posixacl`, `dnodesize=auto`. Pools are created on `/dev/disk/by-id/` paths.
-- Encryption: `aes-256-gcm`, `keyformat=passphrase`, `keylocation=prompt`, the same passphrase on every encryption root. It's unlocked by hand after each boot with [`homelab-unlock`](../host/).
+- Encryption: `aes-256-gcm`, `keyformat=passphrase`, `keylocation=prompt`, the same passphrase on every encryption root. It's unlocked by hand after each boot with [`homelab-unlock`](../pve/).
 - `zeus/data` uses `recordsize=1M` (big sequential media files).
 - Media is on the CMR disk. The SMR disk gets the personal data, which is written once and rarely rewritten, and is the part that gets backed up.
 
-> ⚠️ **No redundancy yet.** Every pool is a single disk. A disk failure means restoring from [backups](../backups/), and mirroring is on the roadmap.
+> ⚠️ **No redundancy yet.** Every pool is a single disk. A disk failure means restoring from [backups](backups.md), and mirroring is on the roadmap.
 
 ## Layout
 
