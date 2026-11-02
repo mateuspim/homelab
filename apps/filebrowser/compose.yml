@@ -1,0 +1,18 @@
+# Filebrowser Quantum on CT 225: read-only browser/downloader for /data/media and /roms. Port 8088.
+# Image runs as uid 1000 already. Config + sqlite DB in /opt/appdata/filebrowser (config.yaml from this repo).
+name: filebrowser
+
+services:
+  filebrowser:
+    image: docker.io/gtstef/filebrowser:2.0.2-stable
+    container_name: filebrowser
+    environment:
+      TZ: America/Sao_Paulo
+      FILEBROWSER_ADMIN_PASSWORD: ${FILEBROWSER_ADMIN_PASSWORD:?set it in .env}
+      FILEBROWSER_JWT_TOKEN_SECRET: ${FILEBROWSER_JWT_TOKEN_SECRET}
+    volumes:
+      - /opt/appdata/filebrowser:/home/filebrowser/data
+      - /data/media:/data/media:ro
+      - /roms:/roms:ro
+    ports: ["8088:80"]
+    restart: unless-stopped

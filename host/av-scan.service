@@ -1,0 +1,9 @@
+[Unit]
+Description=Nightly ClamAV scan of recently changed files on shared datasets
+After=clamav-freshclam.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/av-scan
+Nice=19
+IOSchedulingClass=idle

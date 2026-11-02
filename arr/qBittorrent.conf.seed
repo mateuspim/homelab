@@ -1,0 +1,6 @@
+[BitTorrent]
+Session\DefaultSavePath=/data/torrents
+Session\TempPathEnabled=false
+
+[Preferences]
+WebUI\LocalHostAuth=false

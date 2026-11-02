@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# smartd-mail — smartd -M exec hook: formatted "[homelab]" alert mail to root (→ PVE gmail target).
+# smartd.conf:  ... -m root -M exec /usr/local/sbin/smartd-mail
+# smartd passes SMARTD_DEVICE, SMARTD_DEVICEINFO, SMARTD_FAILTYPE, SMARTD_MESSAGE, SMARTD_TFIRST, SMARTD_ADDRESS.
+set -u
+dev=${SMARTD_DEVICE:-?}
+pool=""
+for p in $(zpool list -H -o name 2>/dev/null); do
+  zpool status -LP "$p" 2>/dev/null | grep -q "${dev}" && pool=$p
+done
+where=${pool:+pool $pool}; where=${where:-not in a ZFS pool}
+
+{
+  printf 'Subject: [homelab] SMART %s on %s (%s) - pve\n' "${SMARTD_FAILTYPE:-alert}" "$dev" "$where"
+  printf 'To: %s\n\n' "${SMARTD_ADDRESS:-root}"
+  cat <<EOF
+HOMELAB ALERT: disk health (smartd)
+
+Host:        pve
+Device:      $dev ($where)
+Model:       ${SMARTD_DEVICEINFO:-unknown}
+Problem:     ${SMARTD_FAILTYPE:-unknown}
+First seen:  ${SMARTD_TFIRST:-now}
+
+Message:
+  ${SMARTD_MESSAGE:-n/a}
+
+What to check:
+  ssh homelab smartctl -a $dev
+  ssh homelab zpool status -v ${pool}
+
+--
+smartd-mail on pve. Repeats follow smartd's -M schedule (default: once).
+EOF
+} | /usr/sbin/sendmail -t

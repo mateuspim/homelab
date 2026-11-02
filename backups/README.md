@@ -4,7 +4,7 @@ Three layers: snapshots on a separate local disk, an encrypted copy in Google Dr
 
 ```mermaid
 flowchart LR
-    G[pve guests<br/>CT 100–202, VM 205] -- "vzdump · Sun 03:00" --> P[(poseidon<br/>keep last 3)]
+    G[pve guests<br/>CT 100–225] -- "vzdump · Sun 03:00" --> P[(poseidon, encrypted<br/>keep last 3)]
     L[lab workspaces] -- "tar + zstd over SMB · daily" --> P
     P -- "rclone crypt copy · Sun 09:00" --> D[(Google Drive)]
     R[(dionysus/roms)] -- "rclone crypt copy · Sun 12:00" --> D
@@ -14,6 +14,8 @@ flowchart LR
 
 - Proxmox job `backup-all-weekly`: **all guests**, snapshot mode, zstd, Sunday 03:00, `keep-last=3`.
 - The target is the `poseidon` pool (WD Purple), a different disk from the guests' SSD. It protects against a dead SSD or a broken guest, not against losing the whole box.
+- What's in a guest backup: its rootfs, which is where every config, database and app data directory lives (`/opt/appdata` on the Docker CTs). The bind-mounted datasets (media, photos, cloud, ROMs) are **not** in vzdump; Proxmox skips bind mounts.
+- `poseidon/backup` is encrypted and the storage is marked `is_mountpoint 1`. If the box rebooted and nobody has unlocked it yet, the job fails, and that failure gets mailed, instead of writing backups to the empty directory on the root SSD.
 - The lab node writes its own file-level archives of its workspaces to the same pool, through a dedicated Samba share. Those are daily, with 7 daily and 4 weekly kept.
 
 ## 2. Off-site: encrypted copy to Google Drive
@@ -54,11 +56,16 @@ pct start 999 && pct destroy 999 --purge                                  # boot
 | App | How |
 | --- | --- |
 | Gitea | `gitea dump` nightly (systemd timer inside CT 121), 7 days kept, which also lands in the weekly vzdump |
-| Jellystat | Built-in backup volume |
-| Vaultwarden, Nextcloud, Immich | Covered by the weekly vzdump. Database-aware dumps are still on the to-do list |
+| Jellystat | Built-in backup volume (`/opt/appdata/jellystat/backup-data`, inside the vzdump) |
+| Immich | Built-in nightly database dump into `/photos/backups`, next to the photos it describes |
+| Vaultwarden, Nextcloud | Covered by the weekly vzdump. Database-aware dumps are still on the to-do list |
+
+## What is deliberately not backed up
+
+The media library and downloads in `zeus/data`. Everything there can be downloaded again, and the arr apps' databases (in the vzdump) know exactly what was there.
 
 ## Gaps (being honest)
 
-- [ ] `zeus` main data (~2 TB) has **no off-site copy**. Only guests and ROMs leave the house
+- [ ] `apollo/vault` (photos, Nextcloud, personal files) has **no copy yet**. Next: a nightly raw `zfs send -w` replica to `poseidon`, which stays encrypted there, then off-site
 - [ ] No mirrored pools, so a disk failure always means a restore
-- [ ] Database-consistent dumps for Nextcloud, Immich and Vaultwarden
+- [ ] Database-consistent dumps for Nextcloud and Vaultwarden

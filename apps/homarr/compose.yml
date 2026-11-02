@@ -1,0 +1,15 @@
+# Homarr v2 on CT 225 (dashboard). Port 7575, data (sqlite + uploads) in /opt/appdata/homarr.
+# Docker socket deliberately NOT mounted (it would give Homarr root over CT 225's Docker).
+name: homarr
+
+services:
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:v2.10.1
+    container_name: homarr
+    environment:
+      SECRET_ENCRYPTION_KEY: ${SECRET_ENCRYPTION_KEY}
+      TZ: America/Sao_Paulo
+    volumes:
+      - /opt/appdata/homarr:/appdata
+    ports: ["7575:7575"]
+    restart: unless-stopped

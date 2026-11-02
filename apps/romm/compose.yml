@@ -1,0 +1,58 @@
+# romm on CT 225. Based on examples/docker-compose.example.yml at 5.4.1.
+# Library: /roms (dionysus, read-only) as Structure A → /romm/library/roms/<platform>/<files>.
+# Read-only means no uploads/deletes from the UI; scanning and downloads work.
+name: romm
+
+services:
+  romm:
+    image: docker.io/rommapp/romm:5.4.1
+    container_name: romm
+    user: "1000:1000"   # writes appdata as pym (tested with 5.4.1)
+    environment:
+      TZ: America/Sao_Paulo
+      DB_HOST: romm-db
+      DB_NAME: romm
+      DB_USER: romm-user
+      DB_PASSWD: ${DB_PASSWORD}
+      ROMM_AUTH_SECRET_KEY: ${ROMM_AUTH_SECRET_KEY}
+      # Metadata providers (own accounts; add to .env later, empty = off)
+      SCREENSCRAPER_USER: ${SCREENSCRAPER_USER:-}
+      SCREENSCRAPER_PASSWORD: ${SCREENSCRAPER_PASSWORD:-}
+      RETROACHIEVEMENTS_API_KEY: ${RETROACHIEVEMENTS_API_KEY:-}
+      STEAMGRIDDB_API_KEY: ${STEAMGRIDDB_API_KEY:-}
+      IGDB_CLIENT_ID: ${IGDB_CLIENT_ID:-}
+      IGDB_CLIENT_SECRET: ${IGDB_CLIENT_SECRET:-}
+      HASHEOUS_API_ENABLED: "true"
+      SCAN_WORKERS: "4"
+      WEB_SERVER_CONCURRENCY: "4"
+    volumes:
+      - /roms:/romm/library/roms:ro
+      - /opt/appdata/romm/resources:/romm/resources
+      - /opt/appdata/romm/redis-data:/redis-data
+      - /opt/appdata/romm/assets:/romm/assets
+      - /opt/appdata/romm/config:/romm/config
+    ports: ["8080:8080"]
+    depends_on:
+      romm-db:
+        condition: service_healthy
+        restart: true
+    restart: unless-stopped
+
+  romm-db:
+    image: docker.io/library/mariadb:11.8
+    container_name: romm-db
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: romm
+      MARIADB_USER: romm-user
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - /opt/appdata/romm-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 30s
+      start_interval: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

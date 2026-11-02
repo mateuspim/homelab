@@ -1,0 +1,18 @@
+# clamav — CT 225 (192.168.50.225), deployed to /opt/stacks/clamav.
+# clamd for Nextcloud "Antivirus for files" (daemon mode, host clamav:3310 on nextcloud_default).
+# Not published on the LAN; only containers on that network can reach it. freshclam runs inside.
+services:
+  clamav:
+    image: clamav/clamav:1.4
+    container_name: clamav
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - /opt/appdata/clamav:/var/lib/clamav
+    networks: [nextcloud]
+    restart: unless-stopped
+
+networks:
+  nextcloud:
+    name: nextcloud_default
+    external: true
