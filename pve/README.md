@@ -20,6 +20,7 @@ Full hardware list in the [main README](../README.md#hardware).
 | --- | --- | --- | --- | --- |
 | [100](ct-100-cloudflared/) | cloudflared | .231 | Cloudflare Tunnel, behind Access, plus the temporary IP whitelist | boot |
 | [101](ct-101-tailscale/) | tailscale | .101 | Subnet router and exit node | boot |
+| [102](ct-102-ovis/) | ovis | .206 | Herdr + Ovis agent workspace, loopback only, own Tailscale node | boot |
 | [121](ct-121-gitea/) | gitea | .21 | Private git and an Actions runner | boot |
 | [201](ct-201-vaultwarden/) | vaultwarden | .201 | Password manager | boot |
 | [202](ct-202-nas/) | nas | .202 | Samba shares and the off-site backup timers | unlock |
@@ -62,6 +63,10 @@ Everything mails root, and root's mail goes through Proxmox's notification syste
 ClamAV on the host (`clamav` + `clamav-freshclam`, no daemon). [`av-scan.timer`](host/av-scan.timer) runs nightly at 04:30 and scans every file whose **ctime** changed in the last 26 h under `/zeus/data/torrents`, `/apollo/vault/stuff` and `/apollo/vault/cloud`. A download can't backdate ctime, and the media library is just hardlinks of the torrents. It runs at idle priority, uses about 1 GB of RAM only while scanning, **never deletes or moves anything**, and mails on a detection or a scan error. While the pools are locked it skips quietly.
 
 Together with qBittorrent's file-name blocklist ([arr](ct-220-arr/)) and Nextcloud's on-upload scanning ([apps](ct-225-apps/)), that covers the three ways files get in: torrents, uploads and SMB.
+
+## Nightly vault replica: [`zfs-replicate-vault`](host/zfs-replicate-vault)
+
+[`zfs-replicate-vault.timer`](host/zfs-replicate-vault.timer) sends `apollo/vault` to `poseidon/replica/vault` every night at 01:30 as a raw (still encrypted) incremental `zfs send`. It never forces a receive, and it mails on any failure. Details in [backups](../docs/backups.md#nightly-vault-replica-zfs-replicate-vault).
 
 ## Stability workarounds
 

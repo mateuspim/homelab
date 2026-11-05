@@ -1,10 +1,11 @@
 # Backups
 
-Three layers: snapshots on a separate local disk, an encrypted copy in Google Drive, and app-level dumps for the things that have databases.
+Three layers: snapshots and a nightly replica on a separate local disk, an encrypted copy in Google Drive, and app-level dumps for the things that have databases.
 
 ```mermaid
 flowchart LR
     G[pve guests<br/>CT 100–225] -- "vzdump · Sun 03:00" --> P[(poseidon, encrypted<br/>keep last 3)]
+    V[(apollo/vault)] -- "raw zfs send · nightly 01:30" --> P
     L[lab workspaces] -- "tar + zstd over SMB · daily" --> P
     P -- "rclone crypt copy · Sun 09:00" --> D[(Google Drive)]
     R[(dionysus/roms)] -- "rclone crypt copy · Sun 12:00" --> D
@@ -17,6 +18,19 @@ flowchart LR
 - What's in a guest backup: its rootfs, which is where every config, database and app data directory lives (`/opt/appdata` on the Docker CTs). The bind-mounted datasets (media, photos, cloud, ROMs) are **not** in vzdump; Proxmox skips bind mounts.
 - `poseidon/backup` is encrypted and the storage is marked `is_mountpoint 1`. If the box rebooted and nobody has unlocked it yet, the job fails, and that failure gets mailed, instead of writing backups to the empty directory on the root SSD.
 - The lab node writes its own file-level archives of its workspaces to the same pool, through a dedicated Samba share. Those are daily, with 7 daily and 4 weekly kept.
+
+### Nightly vault replica: [`zfs-replicate-vault`](../pve/host/zfs-replicate-vault)
+
+`apollo/vault` (photos, Nextcloud, personal files) is bind-mounted data, so vzdump never sees it. A host timer copies it to `poseidon/replica/vault` every night instead.
+
+- [`zfs-replicate-vault.timer`](../pve/host/zfs-replicate-vault.timer) runs daily at **01:30** (`Persistent=true`), before the SMART short tests, the Sunday vzdump and the antivirus scan. The [service](../pve/host/zfs-replicate-vault.service) runs at idle I/O priority.
+- Each run takes a recursive snapshot `repl-YYYYMMDD-HHMM`, then `zfs send -w -R` (incremental from the newest snapshot both sides share, matched by guid) into `zfs recv -u`.
+- **Raw send**: the stream and the replica stay aes-256-gcm encrypted. The replica's key is never loaded on `poseidon`, so it's never mounted there; `homelab-unlock` only loads its three named roots.
+- **Never `recv -F`.** If the two sides share no snapshot, the job refuses and mails instead of rolling the replica back.
+- Keeps 7 snapshots on `apollo` and 30 on `poseidon`. Pruning only touches snapshots that match the script's name pattern **and** carry its `homelab:repl` user property, so a hand-made snapshot is never destroyed.
+- Any failure mails root with the `[homelab]` prefix, like everything else ([alerts](../pve/README.md#alerts)).
+
+It protects against deleting files or a dead `apollo` disk. It's still the same box, so the off-site copy below is the next step.
 
 ## 2. Off-site: encrypted copy to Google Drive
 
@@ -66,6 +80,7 @@ The media library and downloads in `zeus/data`. Everything there can be download
 
 ## Gaps (being honest)
 
-- [ ] `apollo/vault` (photos, Nextcloud, personal files) has **no copy yet**. Next: a nightly raw `zfs send -w` replica to `poseidon`, which stays encrypted there, then off-site
+- [x] `apollo/vault` has a nightly raw replica on `poseidon` (above)
+- [ ] `apollo/vault` has **no off-site copy yet**
 - [ ] No mirrored pools, so a disk failure always means a restore
 - [ ] Database-consistent dumps for Nextcloud and Vaultwarden

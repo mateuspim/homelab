@@ -16,9 +16,9 @@ My self-hosted setup: two Proxmox nodes in a closet. The **homelab** runs media,
 | [`pve/ct-225-apps/`](pve/ct-225-apps/) | Immich, Nextcloud, RomM, Jellystat, Homarr, File Browser, Komga, Kavita, ClamAV |
 | [`lab/`](lab/) | The second node: agent and dev workspaces |
 | [`docs/storage.md`](docs/storage.md) | Encrypted ZFS pools and how storage reaches the guests |
-| [`docs/backups.md`](docs/backups.md) | Weekly snapshots and the encrypted off-site copy to Google Drive |
+| [`docs/backups.md`](docs/backups.md) | Weekly snapshots, the nightly vault replica and the encrypted off-site copy to Google Drive |
 
-The infra guests (cloudflared, Tailscale, Gitea, Vaultwarden, NAS) have their own short pages under [`pve/`](pve/).
+The infra guests (cloudflared, Tailscale, Ovis, Gitea, Vaultwarden, NAS) have their own short pages under [`pve/`](pve/).
 
 ## Architecture
 
@@ -34,6 +34,7 @@ flowchart LR
     subgraph pve["homelab · pve · 192.168.50.200"]
         CT100[CT 100 cloudflared]
         CT101[CT 101 tailscale<br/>subnet router + exit node]
+        CT102[CT 102 ovis<br/>Herdr + Ovis]
         CT121[CT 121 Gitea + Actions runner]
         CT201[CT 201 Vaultwarden]
         CT202[CT 202 NAS · Samba]
@@ -49,6 +50,7 @@ flowchart LR
 
     CF --> CT100 --> CT121 & CT201 & CT220 & CT222 & CT225
     TS --> CT101 --> pve & lab
+    TS --> CT102
     ZFS -- bind mounts --> CT202 & CT220 & CT222 & CT225
     CT220 -- gluetun --> VPN
     CT202 -- weekly --> GD
@@ -93,6 +95,7 @@ Every guest is an **unprivileged LXC**. Storage reaches them as plain bind mount
 | --- | --- | --- |
 | [CT&nbsp;100](pve/ct-100-cloudflared/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/cloudflare.png"> cloudflared | Cloudflare Tunnel for the few public endpoints, all behind Cloudflare Access, plus a small service that temporarily whitelists an IP. No ports are open on the router |
 | [CT&nbsp;101](pve/ct-101-tailscale/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/tailscale.png"> Tailscale | Subnet router and exit node: the whole LAN is reachable from my devices anywhere, and I can route traffic home on untrusted Wi-Fi |
+| [CT&nbsp;102](pve/ct-102-ovis/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/debian.png"> Ovis | Always-on Herdr server with the Ovis plugin, for agent sessions that outlive my laptop. Loopback only, reached over an SSH tunnel or its own Tailscale node |
 | [CT&nbsp;121](pve/ct-121-gitea/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/gitea.png"> Gitea | Private git, plus a Gitea Actions runner for CI. Nightly `gitea dump` |
 | [CT&nbsp;201](pve/ct-201-vaultwarden/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/vaultwarden.png"> Vaultwarden | Password manager (Bitwarden-compatible) |
 | [CT&nbsp;202](pve/ct-202-nas/) | <img width="16" src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/samba-server.png"> NAS | Samba shares (`data`, `stuff`, `backup`, `roms`) and the off-site backup jobs |
@@ -128,6 +131,7 @@ More in [`host/`](pve/).
 | All `pve` guests (vzdump, snapshot mode) | `poseidon` disk (encrypted), keeps the last 3 | Sunday 03:00 |
 | Those archives, encrypted | Google Drive via `rclone crypt` | Sunday 09:00 |
 | ROM library, encrypted | Google Drive via `rclone crypt` | Sunday 12:00 |
+| `apollo/vault` (photos, Nextcloud, files) | Raw encrypted `zfs send` replica on `poseidon`, keeps 30 | Nightly 01:30 |
 | Gitea | `gitea dump` inside the CT, kept 7 days | Nightly |
 | lab workspaces | File-level archives to the NAS over SMB | Daily |
 

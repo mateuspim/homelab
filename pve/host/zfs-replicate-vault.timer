@@ -1,0 +1,9 @@
+[Unit]
+Description=Run zfs-replicate-vault nightly at 01:30 (before smartd short tests 02:00, vzdump Sun 03:00, av-scan 04:30)
+
+[Timer]
+OnCalendar=*-*-* 01:30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
