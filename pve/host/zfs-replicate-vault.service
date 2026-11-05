@@ -1,0 +1,9 @@
+[Unit]
+Description=Raw incremental ZFS replica apollo/vault -> poseidon/replica/vault
+After=zfs-mount.service zfs-import.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/zfs-replicate-vault
+Nice=10
+IOSchedulingClass=idle

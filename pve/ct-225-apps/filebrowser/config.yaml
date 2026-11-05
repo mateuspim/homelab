@@ -1,0 +1,33 @@
+# Filebrowser Quantum config (v2.0.2-stable). Deployed to /opt/appdata/filebrowser/config.yaml.
+# Admin password comes from FILEBROWSER_ADMIN_PASSWORD in .env (typed by the user); it is re-applied at
+# every start, so change it in .env, not in the UI.
+http:
+  port: 80
+  baseURL: "/"
+server:
+  # No server.database here: v2 rejects it as the "old database path". The image sets
+  # FILEBROWSER_DATABASE_PATH=/home/filebrowser/data/database.sqlite.
+  sources:
+    - path: /data/media      # zeus/data/media, mounted ro
+      name: media
+      config:
+        defaultEnabled: true
+        readOnly: true
+    - path: /roms            # dionysus roms, mounted ro
+      name: roms
+      config:
+        defaultEnabled: true
+        readOnly: true
+        rules:
+          - folderPath: "/.keys"   # Switch keys: sensitive, never shown or indexed
+auth:
+  adminUsername: pym
+  methods:
+    password:
+      enabled: true
+      minLength: 12
+      signup: false
+    passkey:
+      enabled: false
+frontend:
+  name: "homelab files"

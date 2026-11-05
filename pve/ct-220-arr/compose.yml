@@ -1,0 +1,137 @@
+# arr stack — CT 220 (192.168.50.220), deployed to /opt/stacks/arr. Secrets live in .env (see .env.example).
+#
+# qbittorrent, prowlarr and flaresolverr share gluetun's network namespace: all their traffic
+# leaves through Proton, and their web UIs are published on gluetun's ports.
+# From the other services, reach them at http://gluetun:<port>. From inside gluetun's namespace
+# (prowlarr -> sonarr etc.), use http://192.168.50.220:<port>, allowed by FIREWALL_OUTBOUND_SUBNETS.
+
+x-lsio-env: &lsio-env
+  PUID: "1000"
+  PGID: "1000"
+  UMASK: "002"
+  TZ: America/Sao_Paulo
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:v3
+    container_name: gluetun
+    cap_add: [NET_ADMIN]
+    devices: [/dev/net/tun:/dev/net/tun]
+    environment:
+      TZ: America/Sao_Paulo
+      VPN_SERVICE_PROVIDER: protonvpn
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:?set in .env}
+      SERVER_COUNTRIES: ${VPN_SERVER_COUNTRIES:-}
+      PORT_FORWARD_ONLY: "on"
+      VPN_PORT_FORWARDING: "on"
+      # Pushes Proton's forwarded port into qBittorrent (needs LocalHostAuth=false, seeded in its config).
+      VPN_PORT_FORWARDING_UP_COMMAND: >-
+        /bin/sh -c 'wget -O- --retry-connrefused --post-data "json={\"listen_port\":{{PORTS}}}" http://127.0.0.1:8080/api/v2/app/setPreferences 2>&1'
+      FIREWALL_OUTBOUND_SUBNETS: 192.168.50.0/24
+    ports:
+      - 8080:8080 # qbittorrent
+      - 9696:9696 # prowlarr
+    volumes:
+      - /opt/appdata/gluetun:/gluetun
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: service:gluetun
+    environment:
+      <<: *lsio-env
+      WEBUI_PORT: "8080"
+    volumes:
+      - /opt/appdata/qbittorrent:/config
+      - /data:/data
+    depends_on:
+      gluetun: { condition: service_healthy, restart: true }
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    network_mode: service:gluetun
+    environment: *lsio-env
+    volumes:
+      - /opt/appdata/prowlarr:/config
+    depends_on:
+      gluetun: { condition: service_healthy, restart: true }
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    network_mode: service:gluetun # prowlarr reaches it at http://localhost:8191
+    environment:
+      TZ: America/Sao_Paulo
+      LOG_LEVEL: info
+    depends_on:
+      gluetun: { condition: service_healthy, restart: true }
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment: *lsio-env
+    ports: [8989:8989]
+    volumes:
+      - /opt/appdata/sonarr:/config
+      - /data:/data
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment: *lsio-env
+    ports: [7878:7878]
+    volumes:
+      - /opt/appdata/radarr:/config
+      - /data:/data
+    restart: unless-stopped
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment: *lsio-env
+    ports: [8686:8686]
+    volumes:
+      - /opt/appdata/lidarr:/config
+      - /data:/data
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment: *lsio-env
+    ports: [6767:6767]
+    volumes:
+      - /opt/appdata/bazarr:/config
+      - /data:/data
+    restart: unless-stopped
+
+  # TRaSH quality profiles + custom formats: WEB-1080p (sonarr), HD Bluray + WEB (radarr).
+  # Configs in /opt/appdata/recyclarr/configs, API keys in its secrets.yml. Syncs daily.
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:8
+    container_name: recyclarr
+    user: "1000:1000"
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - /opt/appdata/recyclarr:/config
+    restart: unless-stopped
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    init: true
+    environment:
+      TZ: America/Sao_Paulo
+      LOG_LEVEL: info
+    ports: [5055:5055]
+    volumes:
+      - /opt/appdata/seerr:/app/config
+    restart: unless-stopped

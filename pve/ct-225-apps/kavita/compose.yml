@@ -1,0 +1,19 @@
+# Kavita on CT 225 (ebooks, also comics/manga, OPDS). Port 5000. linuxserver image for PUID 1000.
+# Reads /data/media/{books,comics} read-only (zeus/data/media ro mount).
+name: kavita
+
+services:
+  kavita:
+    image: lscr.io/linuxserver/kavita:v0.9.1.4-ls130
+    container_name: kavita
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      UMASK: "002"
+      TZ: America/Sao_Paulo
+    volumes:
+      - /opt/appdata/kavita:/config
+      - /data/media/books:/data/books:ro
+      - /data/media/comics:/data/comics:ro
+    ports: ["5000:5000"]
+    restart: unless-stopped

@@ -1,0 +1,44 @@
+# Nextcloud on CT 225: linuxserver image (runs as PUID 1000 → /cloud owned by pym, cron built in),
+# Postgres 17 + Valkey. Installed once with stacks/nextcloud/install.sh (occ, no web installer).
+# Updating Nextcloud itself: `docker exec -it nextcloud updater.phar` / occ upgrade, per linuxserver docs.
+name: nextcloud
+
+x-lsio-env: &lsio-env
+  PUID: "1000"
+  PGID: "1000"
+  UMASK: "002"
+  TZ: America/Sao_Paulo
+
+services:
+  nextcloud:
+    image: lscr.io/linuxserver/nextcloud:latest
+    container_name: nextcloud
+    environment: *lsio-env
+    ports: ["8443:443"]
+    volumes:
+      - /opt/appdata/nextcloud:/config
+      - /cloud:/data
+    depends_on: [nextcloud-db, nextcloud-redis]
+    restart: unless-stopped
+
+  nextcloud-db:
+    image: docker.io/library/postgres:17
+    container_name: nextcloud_db
+    environment:
+      POSTGRES_USER: nextcloud
+      POSTGRES_DB: nextcloud
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - /opt/appdata/nextcloud-db:/var/lib/postgresql/data
+    shm_size: 128mb
+    healthcheck:
+      test: pg_isready -U nextcloud -d nextcloud
+      interval: 10s
+    restart: unless-stopped
+
+  nextcloud-redis:
+    image: docker.io/valkey/valkey:9
+    container_name: nextcloud_redis
+    healthcheck:
+      test: redis-cli ping | grep -q PONG || exit 1
+    restart: unless-stopped

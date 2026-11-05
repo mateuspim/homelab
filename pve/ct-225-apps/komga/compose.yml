@@ -1,0 +1,18 @@
+# Komga on CT 225 (comics/manga reader). Port 25600. Reads /data/media/{comics,books} read-only
+# (zeus/data/media ro mount), so Komga can't write sidecar metadata into the files.
+name: komga
+
+services:
+  komga:
+    image: docker.io/gotson/komga:1.29.2
+    container_name: komga
+    user: "1000:1000"
+    environment:
+      TZ: America/Sao_Paulo
+      JAVA_TOOL_OPTIONS: -Xmx1g   # CT 225 has 8 GB shared with Immich ML etc.
+    volumes:
+      - /opt/appdata/komga:/config
+      - /data/media/comics:/data/comics:ro
+      - /data/media/books:/data/books:ro
+    ports: ["25600:25600"]
+    restart: unless-stopped

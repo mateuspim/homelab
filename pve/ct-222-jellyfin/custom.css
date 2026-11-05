@@ -1,0 +1,70 @@
+/* Jellyfish theme (n00bcodr/Jellyfish) — midnight palette, pinned to commit 206f50d80a29 (2026-10-28); bump deliberately. */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish@206f50d80a29/theme.css");
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish@206f50d80a29/colors/midnight.css");
+/* Jellyfin Enhanced panels */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish@206f50d80a29/jellyfin-enhanced.css");
+/* Lite mode: less blur/shadows/animations (perf) */
+@import url("https://cdn.jsdelivr.net/gh/n00bcodr/Jellyfish@206f50d80a29/lite.css");
+/* Media Bar hero spacing, per screen class (ui pass 2026-11-02).
+   Desktop/tablet: Jellyfish's floating header + font need more room above the first row than
+   Media Bar 3.0.2's max(2.5vh,1.75rem), so lift the hero (dots follow it via JS). */
+@media (min-width: 768px) and (min-height: 601px) {
+  #slides-container { --slideshow-dots-reserve: max(8vh, 5rem); }
+}
+/* Phones, portrait: drop the glass card (it hid the artwork) for a bottom scrim, sit the
+   hero just above the rows, smaller logo, and tuck pause/settings under the header. */
+@media (max-width: 767px) and (orientation: portrait) {
+  #slides-container.layout-marquee {
+    --slideshow-dots-reserve: 2.25rem;
+    --mq-logo-height: clamp(3.25rem, 9vh, 5.5rem);
+  }
+  #slides-container.layout-marquee .slide-content {
+    padding: 0; border: 0; border-radius: 0; background: none;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 0.85);
+  }
+  #slides-container.layout-marquee .gradient-overlay {
+    background:
+      linear-gradient(to top,
+        color-mix(in srgb, var(--secondary-background-color, #1a1a2e) 92%, transparent) 0%,
+        rgb(0 0 0 / 0.6) 38%, rgb(0 0 0 / 0) 68%),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0) 20%);
+  }
+  /* Longer bottom fade so the artwork melts into the page instead of a hard seam. */
+  #slides-container.layout-marquee .backdrop,
+  #slides-container.layout-marquee .gradient-overlay {
+    mask-image: linear-gradient(to top, #0000 0%, #000 20%);
+    -webkit-mask-image: linear-gradient(to top, #0000 0%, #000 20%);
+  }
+  #slides-container .pause-button,
+  #slides-container .ss-settings-toggle { top: 5.25rem; }
+  #slides-container .pause-button i,
+  #slides-container .ss-settings-toggle i { font-size: 1.75rem; }
+  #slides-container .ss-settings-toggle { right: 3rem; }
+  /* 30% opacity vanished on bright artwork; touch has no hover to reveal them. */
+  #slides-container .pause-button,
+  #slides-container .ss-settings-toggle {
+    opacity: 0.75;
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.9));
+  }
+  /* Info line: the genre shrinks (ellipsis) before the age rating gets clipped. */
+  #slides-container.layout-marquee .spec-item,
+  #slides-container.layout-marquee .spec-cert { flex-shrink: 0; }
+  #slides-container.layout-marquee .spec-genre { flex-shrink: 1; }
+}
+/* Narrow phones: drop the critics score so year, rating, runtime, genre and age rating fit. */
+@media (max-width: 400px) and (orientation: portrait) {
+  #slides-container.layout-marquee .spec-critics { display: none; }
+}
+/* Short landscape screens (phones sideways, small laptops): keep the hero below the
+   floating header — tighter reserve, smaller logo, no plot. */
+@media (orientation: landscape) and (max-height: 600px) {
+  #slides-container.layout-marquee {
+    --slideshow-dots-reserve: 1.5rem;
+    --mq-logo-height: clamp(2.5rem, 13vh, 4.5rem);
+  }
+  #slides-container.layout-marquee .plot-container { display: none; }
+  #slides-container .pause-button,
+  #slides-container .ss-settings-toggle,
+  #slides-container .volume-toggle { top: 5rem; }
+}

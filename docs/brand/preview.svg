@@ -66,45 +66,40 @@
   <text x="790" y="66" text-anchor="middle" font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="40" fill="#9ca9b4">pve · Proxmox VE 9.1</text>
   <g font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="44" fill="#e6edf0">
     <text x="70" y="190" font-size="36" letter-spacing="3" fill="#71838f">GUESTS</text>
-    <circle cx="86" cy="260" r="12" fill="#37da88"/><text x="122" y="275" fill="#71838f">CT 100</text><text x="330" y="275">cloudflared</text>
-    <circle cx="86" cy="356" r="12" fill="#37da88"/><text x="122" y="371" fill="#71838f">CT 101</text><text x="330" y="371">tailscale</text>
-    <circle cx="86" cy="452" r="12" fill="#37da88"/><text x="122" y="467" fill="#71838f">CT 121</text><text x="330" y="467">gitea</text>
-    <circle cx="86" cy="548" r="12" fill="#37da88"/><text x="122" y="563" fill="#71838f">CT 201</text><text x="330" y="563">vaultwarden</text>
-    <circle cx="86" cy="644" r="12" fill="#37da88"/><text x="122" y="659" fill="#71838f">CT 202</text><text x="330" y="659">nas</text>
-    <circle cx="86" cy="740" r="12" fill="#37da88"/><text x="122" y="755" fill="#71838f">VM 205</text><text x="330" y="755">media</text>
+    <circle cx="86" cy="250" r="12" fill="#37da88"/><text x="122" y="265" fill="#71838f">CT 100</text><text x="330" y="265">cloudflared</text>
+    <circle cx="86" cy="312" r="12" fill="#37da88"/><text x="122" y="327" fill="#71838f">CT 101</text><text x="330" y="327">tailscale</text>
+    <circle cx="86" cy="374" r="12" fill="#37da88"/><text x="122" y="389" fill="#71838f">CT 121</text><text x="330" y="389">gitea</text>
+    <circle cx="86" cy="436" r="12" fill="#37da88"/><text x="122" y="451" fill="#71838f">CT 201</text><text x="330" y="451">vaultwarden</text>
+    <circle cx="86" cy="498" r="12" fill="#37da88"/><text x="122" y="513" fill="#71838f">CT 202</text><text x="330" y="513">nas</text>
+    <circle cx="86" cy="560" r="12" fill="#37da88"/><text x="122" y="575" fill="#71838f">CT 220</text><text x="330" y="575">arr</text>
+    <circle cx="86" cy="622" r="12" fill="#37da88"/><text x="122" y="637" fill="#71838f">CT 222</text><text x="330" y="637">jellyfin</text>
+    <circle cx="86" cy="684" r="12" fill="#37da88"/><text x="122" y="699" fill="#71838f">CT 225</text><text x="330" y="699">apps</text>
     <text x="860" y="190" font-size="36" letter-spacing="3" fill="#71838f">ZFS POOLS</text>
-    <text x="860" y="280">zeus</text><text x="1500" y="280" text-anchor="end" fill="#71838f">4T</text>
-    <rect x="860" y="306" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="306" width="358" height="22" rx="11" fill="#ff8a3d"/>
-    <text x="860" y="420">apollo</text><text x="1500" y="420" text-anchor="end" fill="#71838f">2T</text>
-    <rect x="860" y="446" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="446" width="499" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="280">zeus</text><text x="1110" y="280" font-size="30" fill="#71838f">encrypted</text><text x="1500" y="280" text-anchor="end" fill="#71838f">4T</text>
+    <rect x="860" y="306" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="306" width="22" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="420">apollo</text><text x="1110" y="420" font-size="30" fill="#71838f">encrypted</text><text x="1500" y="420" text-anchor="end" fill="#71838f">2T</text>
+    <rect x="860" y="446" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="446" width="22" height="22" rx="11" fill="#ff8a3d"/>
     <text x="860" y="560">dionysus</text><text x="1500" y="560" text-anchor="end" fill="#71838f">1T</text>
-    <rect x="860" y="586" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="586" width="390" height="22" rx="11" fill="#ff8a3d"/>
-    <text x="860" y="700">poseidon</text><text x="1500" y="700" text-anchor="end" fill="#71838f">2T</text>
-    <rect x="860" y="726" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="726" width="51" height="22" rx="11" fill="#ff8a3d"/>
+    <rect x="860" y="586" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="586" width="384" height="22" rx="11" fill="#ff8a3d"/>
+    <text x="860" y="700">poseidon</text><text x="1110" y="700" font-size="30" fill="#71838f">encrypted</text><text x="1500" y="700" text-anchor="end" fill="#71838f">2T</text>
+    <rect x="860" y="726" width="640" height="22" rx="11" fill="#1f2a33"/><rect x="860" y="726" width="45" height="22" rx="11" fill="#ff8a3d"/>
   </g>
 </g>
 <g transform="translate(2110 1110) rotate(3 825 440)">
   <rect x="35" y="47" width="1650" height="880" rx="24" fill="#000" opacity=".67" filter="url(#shadow)"/>
   <rect width="1650" height="880" rx="19" fill="#0d1217" stroke="#5a6e76" stroke-width="7"/>
   <g font-family="JetBrainsMono Nerd Font,JetBrainsMono NF,monospace" font-size="40" fill="#e6edf0" xml:space="preserve">
-    <text x="64" y="104"><tspan fill="#ff8a3d">media</tspan><tspan fill="#71838f"> $ </tspan>docker ps --format "{{.Names}}"</text>
-    <text x="64" y="200">jellyfin</text><text x="664" y="200" fill="#37da88">Up</text>
-    <text x="64" y="278">jellyseerr</text><text x="664" y="278" fill="#37da88">Up</text>
-    <text x="64" y="356">jellystat</text><text x="664" y="356" fill="#37da88">Up</text>
-    <text x="64" y="434">sonarr</text><text x="664" y="434" fill="#37da88">Up</text>
-    <text x="64" y="512">radarr</text><text x="664" y="512" fill="#37da88">Up</text>
-    <text x="64" y="590">lidarr</text><text x="664" y="590" fill="#37da88">Up</text>
-    <text x="64" y="668">bazarr</text><text x="664" y="668" fill="#37da88">Up</text>
-    <text x="64" y="746">prowlarr</text><text x="664" y="746" fill="#37da88">Up</text>
-    <text x="854" y="200">qbittorrent</text><text x="1454" y="200" fill="#37da88">Up</text>
-    <text x="854" y="278">gluetun</text><text x="1454" y="278" fill="#37da88">Up</text>
-    <text x="854" y="356">immich_server</text><text x="1454" y="356" fill="#37da88">Up</text>
-    <text x="854" y="434">nextcloud</text><text x="1454" y="434" fill="#37da88">Up</text>
-    <text x="854" y="512">kavita</text><text x="1454" y="512" fill="#37da88">Up</text>
-    <text x="854" y="590">romm</text><text x="1454" y="590" fill="#37da88">Up</text>
-    <text x="854" y="668">homarr</text><text x="1454" y="668" fill="#37da88">Up</text>
-    <text x="854" y="746">filebrowser</text><text x="1454" y="746" fill="#37da88">Up</text>
-    <text x="64" y="836"><tspan fill="#ff8a3d">media</tspan><tspan fill="#71838f"> $ </tspan><tspan fill="#e6edf0">▍</tspan></text>
+    <text x="64" y="104"><tspan fill="#ff8a3d">homelab</tspan><tspan fill="#71838f"> $ </tspan>ssh arr docker ps; ssh apps docker ps</text>
+    <text x="64" y="166" font-size="30" letter-spacing="3" fill="#71838f">CT 220 · ARR</text><text x="854" y="166" font-size="30" letter-spacing="3" fill="#71838f">CT 225 · APPS</text>
+    <text x="64" y="230">gluetun</text><text x="664" y="230" fill="#37da88">Up</text><text x="854" y="230">immich_server</text><text x="1454" y="230" fill="#37da88">Up</text>
+    <text x="64" y="304">qbittorrent</text><text x="664" y="304" fill="#37da88">Up</text><text x="854" y="304">nextcloud</text><text x="1454" y="304" fill="#37da88">Up</text>
+    <text x="64" y="378">prowlarr</text><text x="664" y="378" fill="#37da88">Up</text><text x="854" y="378">romm</text><text x="1454" y="378" fill="#37da88">Up</text>
+    <text x="64" y="452">sonarr</text><text x="664" y="452" fill="#37da88">Up</text><text x="854" y="452">jellystat</text><text x="1454" y="452" fill="#37da88">Up</text>
+    <text x="64" y="526">radarr</text><text x="664" y="526" fill="#37da88">Up</text><text x="854" y="526">homarr</text><text x="1454" y="526" fill="#37da88">Up</text>
+    <text x="64" y="600">lidarr</text><text x="664" y="600" fill="#37da88">Up</text><text x="854" y="600">filebrowser</text><text x="1454" y="600" fill="#37da88">Up</text>
+    <text x="64" y="674">bazarr</text><text x="664" y="674" fill="#37da88">Up</text><text x="854" y="674">komga</text><text x="1454" y="674" fill="#37da88">Up</text>
+    <text x="64" y="748">seerr</text><text x="664" y="748" fill="#37da88">Up</text><text x="854" y="748">kavita</text><text x="1454" y="748" fill="#37da88">Up</text>
+    <text x="64" y="836"><tspan fill="#ff8a3d">homelab</tspan><tspan fill="#71838f"> $ </tspan><tspan fill="#e6edf0">▍</tspan></text>
   </g>
 </g>
 </svg>

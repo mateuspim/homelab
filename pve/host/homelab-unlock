@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# homelab-unlock — unlock every encrypted ZFS dataset with ONE passphrase, then start
+# the guests that bind-mount them, in order.
+#
+# Install on pve:  install -m 700 homelab-unlock /usr/local/sbin/homelab-unlock
+# Run after every reboot:  ssh homelab homelab-unlock
+#
+# Guests in GUESTS must have onboot=0: if they start while a dataset is still locked,
+# their bind mount lands on the empty mountpoint dir on the root SSD. The mountpoint
+# dirs are also chattr +i (see --guard) so nothing can be written there while locked.
+set -euo pipefail
+
+POOLS=(poseidon zeus apollo)
+DATASETS=(poseidon/backup zeus/data apollo/vault)      # encryption roots; children inherit
+GUESTS=(202 220 222 225)                               # NAS, arr, jellyfin, apps — start order
+
+ok()   { printf '  \e[32mok\e[0m   %s\n' "$*"; }
+warn() { printf '  \e[33mwarn\e[0m %s\n' "$*"; }
+fail() { printf '  \e[31mFAIL\e[0m %s\n' "$*"; }
+
+mountpoints() { for ds in "${DATASETS[@]}"; do zfs list -H -o mountpoint -r "$ds" 2>/dev/null; done; }
+
+# --guard: make the encryption roots' unmounted mountpoint dirs immutable (one-time, after
+# creating datasets). Children live inside their locked parent, so they need no guard.
+if [[ "${1:-}" == "--guard" ]]; then
+  for mp in $(zfs list -H -o mountpoint "${DATASETS[@]}"); do
+    if mountpoint -q "$mp"; then warn "$mp is mounted; run --guard while locked/unmounted"; continue; fi
+    mkdir -p "$mp" && chattr +i "$mp" && ok "immutable: $mp"
+  done
+  exit 0
+fi
+
+echo "== pools"
+for pool in "${POOLS[@]}"; do
+  if zpool list -H -o name "$pool" >/dev/null 2>&1; then ok "$pool imported"
+  elif zpool import "$pool"; then ok "$pool imported now"
+  else fail "$pool could not be imported"; exit 1; fi
+done
+
+echo "== keys"
+need=()
+for ds in "${DATASETS[@]}"; do
+  zfs list -H -o name "$ds" >/dev/null 2>&1 || { warn "$ds not found, skipping"; continue; }
+  [[ "$(zfs get -H -o value keystatus "$ds")" == available ]] && ok "$ds already unlocked" || need+=("$ds")
+done
+
+if ((${#need[@]})); then
+  read -rsp "ZFS passphrase: " PASS; echo
+  for ds in "${need[@]}"; do
+    if printf '%s' "$PASS" | zfs load-key "$ds" >/dev/null 2>&1; then ok "$ds unlocked"
+    else fail "$ds wrong passphrase"; unset PASS; exit 1; fi
+  done
+  unset PASS
+fi
+
+echo "== mounts"
+zfs mount -a
+bad=0
+for mp in $(mountpoints); do
+  mountpoint -q "$mp" && ok "$mp" || { fail "$mp not mounted"; bad=1; }
+done
+((bad)) && { fail "not starting guests with missing mounts"; exit 1; }
+
+echo "== guests"
+for id in "${GUESTS[@]}"; do
+  pct config "$id" >/dev/null 2>&1 || { warn "CT $id does not exist"; continue; }
+  if pct status "$id" | grep -q running; then
+    # running while we just unlocked -> its bind mounts point at the empty dirs; restart it.
+    # Re-running when everything was already unlocked leaves running guests alone.
+    if ((${#need[@]})); then pct reboot "$id" && ok "CT $id restarted (was running before unlock)"
+    else ok "CT $id already running"; fi
+  else
+    pct start "$id" && ok "CT $id started"
+  fi
+done
+
+echo "== summary"
+zfs get -H -o name,value keystatus "${DATASETS[@]}" 2>/dev/null | column -t
+pct list | awk -v ids=" ${GUESTS[*]} " 'NR==1 || index(ids, " "$1" ")'

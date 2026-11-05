@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# av-scan — nightly ClamAV scan of files that changed recently on the shared datasets.
+# Runs on pve (sees every dataset; root mail goes to Gmail via the PVE notification target).
+# Reports only: never deletes or moves files. Mails root on detections or scan errors.
+#
+# Install:  install -m 700 av-scan /usr/local/sbin/av-scan   (+ av-scan.service/.timer)
+# Manual:   av-scan [minutes]   (default 1560 = 26 h, overlaps the nightly run)
+set -uo pipefail
+
+MINUTES=${1:-1560}
+DIRS=(/zeus/data/torrents /apollo/vault/stuff /apollo/vault/cloud)
+ROOTS=(/zeus/data /apollo/vault)   # encryption roots; locked -> nothing to scan
+LOG=/var/log/av-scan.log
+LIST=$(mktemp); OUT=$(mktemp); trap 'rm -f "$LIST" "$OUT"' EXIT
+
+mail_root() { # mail_root <subject> <headline> <body-file>
+  {
+    printf 'Subject: [homelab] %s\nTo: root\n\n' "$1"
+    printf 'HOMELAB ALERT: %s\n\nHost:     pve\nWindow:   files changed in the last %s min\nScanned:  %s files in %s\n\n' \
+      "$2" "$MINUTES" "$n" "${DIRS[*]}"
+    if grep -q 'FOUND$' "$3"; then
+      printf 'Detections:\n'; grep 'FOUND$' "$3" | sed 's/^/  /'; printf '\n'
+    fi
+    printf 'clamscan output:\n'; grep -v 'FOUND$' "$3" | sed 's/^/  /'
+    printf '\nNothing was deleted or moved. Inspect, then remove by hand, e.g. ssh homelab rm <path>\n'
+    printf -- '--\nav-scan on pve (nightly 04:30). Log: /var/log/av-scan.log\n'
+  } | /usr/sbin/sendmail root
+}
+
+for r in "${ROOTS[@]}"; do
+  mountpoint -q "$r" || { echo "$(date -Is) skipped: $r not mounted (locked?)" >>"$LOG"; exit 0; }
+done
+
+# ctime, not mtime: a download can't backdate it.
+find "${DIRS[@]}" -xdev -type f -cmin "-$MINUTES" -print >"$LIST" 2>/dev/null
+n=$(wc -l <"$LIST")
+if ((n == 0)); then echo "$(date -Is) 0 changed files, nothing to scan" >>"$LOG"; exit 0; fi
+
+nice -n 19 ionice -c 3 clamscan --infected --file-list="$LIST" >"$OUT" 2>&1
+rc=$?
+{ echo "$(date -Is) scanned $n changed files (last ${MINUTES} min), clamscan rc=$rc"; grep -E 'FOUND$|ERROR' "$OUT"; } >>"$LOG"
+
+case $rc in
+  0) ;;
+  1) mail_root "ClamAV: $(grep -c 'FOUND$' "$OUT") infected file(s) on pve" "infected files found" "$OUT" ;;
+  *) mail_root "ClamAV: scan error (rc=$rc) on pve" "the antivirus scan failed" "$OUT" ;;
+esac
+exit 0

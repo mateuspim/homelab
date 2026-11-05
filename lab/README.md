@@ -11,7 +11,7 @@ My personal shed: a second Proxmox node (Ryzen 7 5700G, 16 GB, 1 TB SSD, Proxmox
 
 ## Backups
 
-Workspaces are backed up at the file level (repos, configs, credentials, `/etc`, scripts) every day to the homelab NAS over a dedicated backup-only Samba share. Caches, `node_modules`, toolchains and Docker volumes are excluded because they can be rebuilt. See [backups](../backups/).
+Workspaces are backed up at the file level (repos, configs, credentials, `/etc`, scripts) every day to the homelab NAS over a dedicated backup-only Samba share. Caches, `node_modules`, toolchains and Docker volumes are excluded because they can be rebuilt. See [backups](../docs/backups.md).
 
 ## Plans
 

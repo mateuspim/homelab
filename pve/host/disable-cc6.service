@@ -1,0 +1,12 @@
+[Unit]
+Description=Disable deepest CPU idle state (C2/CC6) - workaround for Ryzen idle freezes
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "for f in /sys/devices/system/cpu/cpu*/cpuidle/state2/disable; do echo 1 > $f; done"
+ExecStop=/bin/sh -c "for f in /sys/devices/system/cpu/cpu*/cpuidle/state2/disable; do echo 0 > $f; done"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
