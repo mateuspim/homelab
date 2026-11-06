@@ -1,0 +1,18 @@
+# SearXNG on CT 225 (private metasearch, used by opencode on the workstation). Port 8082, LAN only (pve firewall).
+# settings.yml lives in /opt/appdata/searxng: copy settings.example.yml there and generate secret_key on the host (never commit it).
+name: searxng
+
+services:
+  searxng:
+    image: searxng/searxng:2026.11.2-cccbc9e15
+    container_name: searxng
+    environment:
+      SEARXNG_BASE_URL: http://192.168.50.225:8082/
+      TZ: America/Sao_Paulo
+    volumes:
+      - /opt/appdata/searxng:/etc/searxng
+    ports: ["8082:8080"]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: {max-size: 1m, max-file: "1"}

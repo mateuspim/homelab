@@ -13,7 +13,7 @@ My self-hosted setup: two Proxmox nodes in a closet. The **homelab** runs media,
 | [`pve/`](pve/) | The homelab node: host setup (one-passphrase unlock, alert mail, antivirus, stability) and a folder per guest |
 | [`pve/ct-220-arr/`](pve/ct-220-arr/) | The arr stack behind a VPN, download rules, TRaSH quality profiles, API wiring scripts |
 | [`pve/ct-222-jellyfin/`](pve/ct-222-jellyfin/) | Native Jellyfin |
-| [`pve/ct-225-apps/`](pve/ct-225-apps/) | Immich, Nextcloud, RomM, Jellystat, Homarr, File Browser, Komga, Kavita, ClamAV |
+| [`pve/ct-225-apps/`](pve/ct-225-apps/) | Immich, Nextcloud, RomM, Jellystat, Homarr, File Browser, Komga, Kavita, SearXNG, ClamAV |
 | [`lab/`](lab/) | The second node: agent and dev workspaces |
 | [`docs/storage.md`](docs/storage.md) | Encrypted ZFS pools and how storage reaches the guests |
 | [`docs/backups.md`](docs/backups.md) | Weekly snapshots, the nightly vault replica and the encrypted off-site copy to Google Drive |
@@ -106,7 +106,7 @@ Every guest is an **unprivileged LXC**. Storage reaches them as plain bind mount
 | --- | --- | --- |
 | [CT&nbsp;220&nbsp;arr](pve/ct-220-arr/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/sonarr.png"> Sonarr, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/radarr.png"> Radarr, Lidarr, Bazarr, Prowlarr, FlareSolverr, Seerr, Recyclarr, and qBittorrent inside **gluetun** (ProtonVPN with port forwarding) | [`arr/`](pve/ct-220-arr/) |
 | [CT&nbsp;222&nbsp;jellyfin](pve/ct-222-jellyfin/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/jellyfin.png"> Jellyfin, installed natively from the official repo (no Docker), read-only media | [`jellyfin/`](pve/ct-222-jellyfin/) |
-| [CT&nbsp;225&nbsp;apps](pve/ct-225-apps/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, ClamAV | [`apps/`](pve/ct-225-apps/) |
+| [CT&nbsp;225&nbsp;apps](pve/ct-225-apps/) | <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/immich.png"> Immich (with ML), <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/nextcloud.png"> Nextcloud, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/romm.png"> RomM, Jellystat, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/homarr.png"> Homarr, File Browser Quantum, Komga, Kavita, <img width="16" src="https://cdn.jsdelivr.net/gh/selfhst/icons/png/searxng.png"> SearXNG, ClamAV | [`apps/`](pve/ct-225-apps/) |
 
 ### lab
 

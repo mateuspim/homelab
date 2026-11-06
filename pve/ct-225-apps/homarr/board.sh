@@ -15,6 +15,7 @@ ICON=https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg
 
 # Sections: id | title | base x,y,w,h (15 cols) | mobile x,y,w,h (3 cols). Tiles fill each section row-major, 1x1.
 # Base packs into two full rows with no gaps: Media 3 + Library 6 + Downloads 6, then Infra 4 + Homelab 4 + Remote 7.
+# Section "root" = a lone tile in the top row, right of the weather (base x=14; mobile x=2 of the weather row).
 SECTIONS=(
   "sec-media|Media|0,1,3,1|0,2,3,1"
   "sec-library|Library|3,1,6,1|0,3,3,2"
@@ -30,6 +31,7 @@ SECTIONS=(
 # No ping for self-signed https origins (Vaultwarden cert lacks the IP SAN; Nextcloud, Proxmox): Homarr's fetch rejects them.
 # Remote tiles: one per cloudflared ingress hostname (CT 100, remotely managed tunnel), no ping (the LAN tile has it).
 TILES=(
+  "root|SearXNG|http://192.168.50.225:8082|http://192.168.50.225:8082/healthz|searxng|Private web search (also opencode's search backend)"
   "sec-media|Jellyfin|http://192.168.50.222:8096|http://192.168.50.222:8096/health|jellyfin|Muses — movies, shows, music"
   "sec-media|Seerr|http://192.168.50.220:5055|http://192.168.50.220:5055/api/v1/status|seerr|Request movies and shows"
   "sec-media|Jellystat|http://192.168.50.225:3000|http://192.168.50.225:3000/auth/isConfigured|jellystat|Jellyfin playback stats"
@@ -121,7 +123,11 @@ content=$(jq -nc --argjson tiles "$tiles" --argjson secs "$secs" --arg root "$ro
         {id:"w-weather", kind:"weather", integrationIds:[], advancedOptions:adv,
          options:{location:{name:"São Paulo", latitude:-23.5505, longitude:-46.6333}, isFormatFahrenheit:false,
                   showCity:false, showCurrentWindSpeed:false, hasForecast:true, forecastDayCount:5, showHumidity:false},
-         layouts:[lay($base;$root;4;0;11;1), lay($mob;$root;0;1;3;1)]} ]
+         layouts:[lay($base;$root;4;0;10;1), lay($mob;$root;0;1;2;1)]} ]
+      + [ $tiles[] | select(.sec == "root") | {
+          id:("app-root-" + (.name | ascii_downcase | gsub("[^a-z0-9]"; ""))), kind:"app", integrationIds:[], advancedOptions:adv,
+          options:{appId:.app, openIn:"newTab", showTitle:true},
+          layouts:[lay($base;$root;14;0;1;1), lay($mob;$root;2;1;1;1)] } ]
       + [ $secs[] as $s | [ $tiles[] | select(.sec == $s.id) ] | to_entries[] | .key as $i | .value | {
           id:("app-" + ($s.id | ltrimstr("sec-")) + "-" + (.name | ascii_downcase | gsub("[^a-z0-9]"; ""))), kind:"app", integrationIds:[], advancedOptions:adv,
           options:{appId:.app, openIn:"newTab", showTitle:true},
