@@ -1,0 +1,15 @@
+# Copy to /opt/appdata/searxng/settings.yml (chmod 600; the entrypoint chowns it to the image's uid 977).
+# Generate the key on the host: sed -i "s/changeme/$(openssl rand -hex 32)/" settings.yml
+use_default_settings: true
+general:
+  instance_name: "homelab search"
+server:
+  secret_key: "changeme"
+  limiter: false          # private, LAN-only instance: no bot detection (it would also need Valkey)
+  public_instance: false
+  image_proxy: false
+search:
+  safe_search: 0
+  formats:
+    - html
+    - json                # the opencode websearch plugin queries /search?format=json
